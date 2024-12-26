@@ -1,5 +1,6 @@
-import { apiSlice } from './apiSlice';
-const USERS_URL = '/api/users';
+import { apiSlice } from './apiSlice'
+const USERS_URL = '/api/users'
+const IMAGES_URL = '/api/images'
 
 export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -31,11 +32,24 @@ export const userApiSlice = apiSlice.injectEndpoints({
       }),
     }),
   }),
-});
+})
 
 export const {
   useLoginMutation,
   useLogoutMutation,
   useRegisterMutation,
   useUpdateUserMutation,
-} = userApiSlice;
+} = userApiSlice
+
+export const imageApiSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    uploadBilbord: builder.mutation({
+      query: ({ imgId, formData }) => ({
+        url: `${IMAGES_URL}/upload/${imgId}`,
+        method: 'POST',
+        body: formData,
+      }),
+    }),
+  }),
+})
+export const { useUploadBilbordMutation } = imageApiSlice

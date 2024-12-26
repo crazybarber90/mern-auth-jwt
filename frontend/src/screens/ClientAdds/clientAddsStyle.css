@@ -1,0 +1,91 @@
+.clientAddWrapper {
+  width: 100%;
+  height: auto;
+  overflow-y: scroll;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 1%;
+}
+
+.clientAddsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  background-color: whitesmoke;
+  border: 1px solid lightgray;
+  max-width: 200px;
+}
+
+.bilbordName {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.uploadSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.uploadButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 16px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s;
+}
+
+.submitUploadImage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: olivedrab;
+  color: white;
+  font-size: 16px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+
+.uploadButton:hover {
+  background-color: #45a049;
+}
+
+.imagePreview {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed #ccc;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: white;
+}
+
+.imageInfo {
+  font-size: 14px;
+  color: #555;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.previewImage {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover; /* Prikaz slike sa uklapanjem */
+  border-radius: 5px;
+}

@@ -1,0 +1,22 @@
+/* FormContainer Styles */
+.formContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+  padding: 0 15px;
+}
+
+.formRow {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: center;
+}
+
+.formCard {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}

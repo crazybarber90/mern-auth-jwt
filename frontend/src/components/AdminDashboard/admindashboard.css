@@ -1,0 +1,28 @@
+.adminBar {
+  width: 220px;
+  height: 85vh;
+  background-color: lightgray;
+  position: fixed;
+  padding: 5px;
+  display: flex;
+  left: 0;
+  top: 11vh;
+  flex-direction: column;
+}
+
+.adminBtn {
+  background-color: #4caf50;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+  font-size: 18px;
+  margin: 1px 0;
+  text-decoration: none;
+}
+
+.adminBtn:hover {
+  background-color: #3e8e41;
+}

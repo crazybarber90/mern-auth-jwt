@@ -1,0 +1,10 @@
+.singleClientCardWrapper {
+  width: 200px;
+  height: 200px;
+  background-color: lightgray;
+  border: 1px solid gray;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
