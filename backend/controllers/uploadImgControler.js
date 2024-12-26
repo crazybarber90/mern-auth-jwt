@@ -140,4 +140,40 @@ const getBilbordsByUserId = asyncHandler(async (req, res) => {
   res.status(200).json(bilbordsWithFullUrls)
 })
 
-export { upload, uploadBilbordImage, getBilbordsByUserId }
+// @desc    Get specific bilbord by userId and bilbordId
+// @route   GET /api/bilbords/:userId/:bilbordId
+// @access  Public
+const getBilbordByUserAndBilbordId = asyncHandler(async (req, res) => {
+  const { userId, bilbordId } = req.params
+
+  // Proveri validnost ID-ova
+  if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(bilbordId)) {
+    res.status(400)
+    throw new Error('Invalid userId or bilbordId')
+  }
+
+  // Pronađi bilbord na osnovu userId i bilbordId
+  const bilbord = await ClientBilbord.findOne({
+    userId,
+    _id: bilbordId,
+  })
+
+  if (!bilbord) {
+    res.status(404)
+    throw new Error('Bilbord not found')
+  }
+
+  // Dodaj pun URL za imageUrl
+  const fullImageUrl = `${req.protocol}://${req.get('host')}${bilbord.imageUrl}`
+  const bilbordWithFullUrl = { ...bilbord.toObject(), imageUrl: fullImageUrl }
+
+  // Vrati bilbord sa punim URL-om
+  res.status(200).json(bilbordWithFullUrl)
+})
+
+export {
+  upload,
+  uploadBilbordImage,
+  getBilbordsByUserId,
+  getBilbordByUserAndBilbordId,
+}

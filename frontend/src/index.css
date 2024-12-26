@@ -1,0 +1,9 @@
+/* Uklanjanje margina i paddinga */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* Ukida border-box efekat */
+  /* height: 100vh; */
+  scrollbar-width: none;
+}

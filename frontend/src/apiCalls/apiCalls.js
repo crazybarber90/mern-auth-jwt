@@ -40,3 +40,10 @@ export const uploadBilbordApi = (id, formData) => {
 export const getClientBilbordsApi = (userId) => {
   return api.get(`/bilbord/${userId}`).then((response) => response.data)
 }
+
+// Funkcija za preuzimanje bilborda po userId
+export const getBilbordApi = ({ userId, bilbordId }) => {
+  return api
+    .get(`/bilbord/${userId}/${bilbordId}`)
+    .then((response) => response.data)
+}

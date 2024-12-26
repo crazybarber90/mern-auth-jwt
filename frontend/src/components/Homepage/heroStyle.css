@@ -6,15 +6,18 @@
 
 .homepageContainer {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  /* justify-content: center; */
+  /* align-items: center; */
   background-color: #ffffff;
-  padding: 40px;
+  padding: 10px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 90%;
+  width: 98%;
+  min-height: 88vh;
+  height: auto;
   margin: 0 auto;
   flex-direction: column;
+  background-color: aquamarine;
 }
 
 .homepageTitle {

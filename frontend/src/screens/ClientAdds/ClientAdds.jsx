@@ -164,7 +164,6 @@ const ClientAdds = () => {
     try {
       const myBilbords = await getClientBilbordsApi(userInfo._id)
       if (myBilbords) {
-        toast.success('Bilbordi uspešno preuzeti!')
         setBilbords(myBilbords)
       }
     } catch (error) {
@@ -176,6 +175,7 @@ const ClientAdds = () => {
 
   useEffect(() => {
     getBilbords()
+    // eslint-disable-next-line
   }, [])
 
   // Držimo izabranu sliku
@@ -198,7 +198,7 @@ const ClientAdds = () => {
   // Funkcija za upload slike
   const handleSaveChanges = async () => {
     if (!selectedImage || !selectedBilbord) {
-      alert('Nema izabrane slike ili bilborda.')
+      toast.error('Nema izabrane slike.')
       return
     }
 
@@ -210,11 +210,15 @@ const ClientAdds = () => {
     formData.append('image', file)
 
     try {
+      // eslint-disable-next-line
       const { data } = await uploadBilbordApi(selectedBilbord._id, formData)
 
-      console.log('Slika uspešno uploadovana:', data)
       toast.success('Slika uspešno sačuvana!')
-      getBilbords() // Osvježavanje bilborda nakon uspešnog upload-a
+      getBilbords() // Revalidiranje bilborda nakon uspešnog upload-a
+
+      // Resetovanje stanja da ne bi moglo da se spamuje dugme dok se ne doda nova slika
+      setSelectedImage(null)
+      setSelectedBilbord(null)
     } catch (error) {
       console.error('Greška prilikom upload-a slike:', error)
       toast.error('Greška prilikom upload-a slike.')
@@ -223,61 +227,70 @@ const ClientAdds = () => {
     }
   }
 
+  console.log('selectedImage', selectedImage)
+
   return (
     <div className="clientAddWrapper">
       <div className="clientAddsContainer">
-        {bilbords.map((bilbord) => (
-          <div key={bilbord._id} className="clientAddsCard">
-            <h3 className="bilbordName">{`Bilbord ${bilbord.name}`}</h3>
-            <div className="uploadSection">
-              <p className="imageInfo">
-                Preporučena dimenzija slike: <strong>1920x1080</strong> (16:9
-                format).
-              </p>
-              <p
-                className="uploadButton"
-                onClick={() => triggerFileInput(bilbord)}
-              >
-                <FiPlus size={24} />
-                <span>Dodaj sliku</span>
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={handleImageUpload}
-              />
-            </div>
-            <div className="imagePreview">
-              {selectedImage ? (
-                <img
-                  src={selectedImage} // Prikazivanje izabrane slike
-                  alt="Selected"
-                  className="previewImage"
-                />
-              ) : (
-                <img
-                  // src={
-                  //   'http://localhost:5000/uploads/bilbord/676c389e405aceae42332dcf/1735173129930_lhujxuj14.jpg' ||
-                  //   'defaultImage.jpg'
-                  // } // Ako nema izabrane slike, prikazujemo sliku iz baze
+        {bilbords.map(
+          (bilbord) => (
+            console.log('bilbord', bilbord),
+            (
+              <div key={bilbord._id} className="clientAddsCard">
+                <h3 className="bilbordName">{`Bilbord ${bilbord.name}`}</h3>
+                <div className="uploadSection">
+                  <p className="imageInfo">
+                    Preporučena dimenzija slike: <strong>1920x1080</strong>{' '}
+                    (16:9 format).
+                  </p>
+                  <p
+                    className="uploadButton"
+                    onClick={() => triggerFileInput(bilbord)}
+                  >
+                    <FiPlus size={24} />
+                    <span>Dodaj sliku</span>
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleImageUpload}
+                  />
+                </div>
+                <div className="imagePreview">
+                  {selectedImage ? (
+                    <img
+                      src={selectedImage || '/public/images/defaultImage.png'} // Prikazivanje izabrane slike
+                      alt="Selected"
+                      className="previewImage"
+                    />
+                  ) : (
+                    <img
+                      // src={
+                      //   'http://localhost:5000/uploads/bilbord/676c389e405aceae42332dcf/1735173129930_lhujxuj14.jpg' ||
+                      //   'defaultImage.jpg'
+                      // } // Ako nema izabrane slike, prikazujemo sliku iz baze
 
-                  src={bilbord.imageUrl || 'defaultImage.jpg'}
-                  alt="Bilbord"
-                  className="previewImage"
-                />
-              )}
-            </div>
-            <p
-              onClick={handleSaveChanges}
-              className="submitUploadImage"
-              disabled={uploading}
-            >
-              {uploading ? 'Uploading...' : 'Sačuvaj izmenu'}
-            </p>
-          </div>
-        ))}
+                      src={
+                        bilbord.imageUrl || '/public/images/defaultImage.png'
+                      }
+                      alt="Bilbord"
+                      className="previewImage"
+                    />
+                  )}
+                </div>
+                <p
+                  onClick={handleSaveChanges}
+                  className="submitUploadImage"
+                  disabled={uploading}
+                >
+                  {uploading ? 'Dodavanje...' : 'Sačuvaj izmenu'}
+                </p>
+              </div>
+            )
+          )
+        )}
       </div>
     </div>
   )

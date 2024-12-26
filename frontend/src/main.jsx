@@ -21,6 +21,7 @@ import AllClients from './screens/AllClients/AllClients.jsx'
 import ClientDetails from './screens/AllClients/ClientDetails/ClientDetails.jsx'
 import NotFoundPage from './screens/NotFoundPage/NotFoundPage.jsx'
 import ImagePreviewPage from './screens/ImagePreviewPage/ImagePreviewPage.jsx'
+import BilbordPage from './screens/BilbordPage/BilbordPage.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -31,6 +32,9 @@ const router = createBrowserRouter(
       <Route path="/profile" element={<ProfileScreen />} />
       <Route path="/client-adds" element={<ClientAdds />} />
       <Route path="/image/:id" element={<ImagePreviewPage />} />
+
+      {/* BILBORD SLIKA */}
+      <Route path="/bilbord/:userId/:bilbordId" element={<BilbordPage />} />
       {/* Dinamična ruta */}
       {/* PROTECTED ROUTES (ONLY ADMINS) */}
       <Route path="" element={<PrivateRoute roles={['admin', 'superadmin']} />}>
