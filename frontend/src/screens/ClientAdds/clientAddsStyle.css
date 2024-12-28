@@ -2,6 +2,7 @@
   height: auto;
   overflow-y: scroll;
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
   flex-wrap: wrap;
@@ -9,7 +10,12 @@
   scrollbar-width: none;
   padding: 10px;
 }
-
+.allBilbordsWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  /* justify-content: center; */
+}
 .clientAddsContainer {
   display: flex;
   flex-direction: column;
@@ -88,4 +94,19 @@
   max-height: 400px;
   object-fit: cover; /* Prikaz slike sa uklapanjem */
   border-radius: 5px;
+}
+
+.paginationControls {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+  gap: 20px;
+}
+
+.paginationBtn {
+  background-color: #f0f0f0;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
 }

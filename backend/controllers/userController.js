@@ -48,6 +48,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if (user) {
     // Kreiranje novi zapis u clientbilbords kolekciji za svakog novo-registrovanog usera
     const clientBilbord = await ClientBilbord.create({
+      name: 'Bilbord-1',
       userId: user._id,
       image: '', // Početno prazno polje za sliku
       timestamp: Date.now(),

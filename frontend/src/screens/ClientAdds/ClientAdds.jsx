@@ -1,224 +1,87 @@
-// import { useState, useEffect, useRef } from 'react'
-// import { FiPlus } from 'react-icons/fi' // Ikona za dodavanje
-// import './clientAddsStyle.css'
-// import { uploadBilbordApi, getClientBilbordsApi } from '../../apiCalls/apiCalls'
-// import { toast } from 'react-toastify'
-// import { useSelector } from 'react-redux'
-
-// const ClientAdds = () => {
-//   const [bilbords, setBilbords] = useState([])
-//   const [selectedImage, setSelectedImage] = useState(null)
-//   const [uploading, setUploading] = useState(false)
-//   const [selectedBilbord, setSelectedBilbord] = useState(null)
-//   const fileInputRef = useRef(null)
-//   const { userInfo } = useSelector((state) => state.auth)
-
-//   // Preuzimanje bilborda za korisnika sa userId
-//   // const fetchBilbords = async () => {
-//   //   const userId = localStorage.getItem('userId'); // Pretpostavka da se userId čuva u localStorage
-//   //   try {
-//   //     const bilbordsData = await getClientBilbordsApi(userId); // Preuzimanje bilborda sa userId
-//   //     setBilbords(bilbordsData); // Čuvanje podataka o bilbordima u stanje
-//   //   } catch (error) {
-//   //     console.error('Greška prilikom učitavanja bilborda:', error);
-//   //   }
-//   // };
-
-//   const getBilbords = async () => {
-//     try {
-//       const myBilbords = await getClientBilbordsApi(userInfo._id)
-
-//       if (myBilbords) {
-//         toast.success('Bilbordi uspešno preuzeti!')
-//         setBilbords(myBilbords)
-//       }
-//     } catch (error) {
-//       console.error('Greška prilikom preuzimanja bilborda:', error)
-//     }
-//   }
-
-//   useEffect(() => {
-//     getBilbords()
-//   }, [])
-
-//   // useEffect(() => {
-//   //   fetchBilbords(); // Pozivanje funkcije da učita bilborde pri učitavanju komponente
-//   // }, []);
-
-//   // Držimo izabranu sliku
-//   const handleImageUpload = (event) => {
-//     const file = event.target.files[0]
-//     if (file) {
-//       setSelectedImage(URL.createObjectURL(file))
-//     }
-//   }
-
-//   // Aktiviranje file input-a
-//   const triggerFileInput = (bilbord) => {
-//     setSelectedBilbord(bilbord) // Povezivanje trenutnog bilborda sa slikom
-//     fileInputRef.current.click()
-//   }
-
-//   // Funkcija za upload slike
-//   const handleSaveChanges = async () => {
-//     if (!selectedImage || !selectedBilbord) {
-//       alert('Nema izabrane slike ili bilborda.')
-//       return
-//     }
-
-//     setUploading(true)
-
-//     // Kreiramo FormData za sliku
-//     const formData = new FormData()
-//     const file = fileInputRef.current.files[0]
-//     formData.append('image', file)
-
-//     try {
-//       const { data } = await uploadBilbordApi({
-//         bilbordId: selectedBilbord._id, // ID bilborda koji se updejtuje
-//         formData,
-//       })
-
-//       console.log('Slika uspešno uploadovana:', data)
-//       alert('Slika uspešno sačuvana!')
-//       getBilbords() // Osvježavanje bilborda nakon uspešnog upload-a
-//     } catch (error) {
-//       console.error('Greška prilikom upload-a slike:', error)
-//       alert('Greška prilikom upload-a slike.')
-//     } finally {
-//       setUploading(false)
-//     }
-//   }
-
-//   return (
-//     <div className="clientAddWrapper">
-//       <div className="clientAddsContainer">
-//         {bilbords.map((bilbord) => (
-//           <div key={bilbord._id} className="clientAddsCard">
-//             <h3 className="bilbordName">{`Bilbord ${bilbord.bilbord_id}`}</h3>
-//             <div className="uploadSection">
-//               <p className="imageInfo">
-//                 Preporučena dimenzija slike: <strong>1920x1080</strong> (16:9
-//                 format).
-//               </p>
-//               <p
-//                 className="uploadButton"
-//                 onClick={() => triggerFileInput(bilbord)}
-//               >
-//                 <FiPlus size={24} />
-//                 <span>Dodaj sliku</span>
-//               </p>
-//               <input
-//                 ref={fileInputRef}
-//                 type="file"
-//                 accept="image/*"
-//                 style={{ display: 'none' }}
-//                 onChange={handleImageUpload}
-//               />
-//             </div>
-//             {selectedImage &&
-//               selectedBilbord &&
-//               selectedBilbord._id === bilbord._id && (
-//                 <div className="imagePreview">
-//                   <img
-//                     src={selectedImage}
-//                     alt="Selected"
-//                     className="previewImage"
-//                   />
-//                 </div>
-//               )}
-//             <p
-//               onClick={handleSaveChanges}
-//               className="submitUploadImage"
-//               disabled={uploading}
-//             >
-//               {uploading ? 'Uploading...' : 'Sačuvaj izmenu'}
-//             </p>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default ClientAdds
-
-// React komponenta za rad sa bilbordima
 import { useState, useEffect, useRef } from 'react'
 import { FiPlus } from 'react-icons/fi'
 import './clientAddsStyle.css'
 import { uploadBilbordApi, getClientBilbordsApi } from '../../apiCalls/apiCalls'
 import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
+import Back from '../../components/BackIcon/Back'
 
 const ClientAdds = () => {
-  const [bilbords, setBilbords] = useState([])
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [uploading, setUploading] = useState(false)
-  const [selectedBilbord, setSelectedBilbord] = useState(null)
-  const fileInputRef = useRef(null)
+  const [bilbords, setBilbords] = useState([]) // Držimo sve bilborde
+  const [imagesByBilbord, setImagesByBilbord] = useState({}) // Pratimo slike za svaki bilbord
+  const [uploading, setUploading] = useState(false) // Status dodavanja slike
+  const fileInputRef = useRef(null) // Ref za input element
   const { userInfo } = useSelector((state) => state.auth)
+
+  const [page, setPage] = useState(1) // Trenutna stranica
+  const [pages, setPages] = useState(1) // Ukupan broj stranica
 
   // Preuzimanje bilborda za korisnika sa userId
   const getBilbords = async () => {
     try {
-      const myBilbords = await getClientBilbordsApi(userInfo._id)
-      if (myBilbords) {
-        setBilbords(myBilbords)
+      const { bilbords: fetchAllBilbords, pages: totalPages } =
+        await getClientBilbordsApi({ userId: userInfo._id, page })
+      if (fetchAllBilbords) {
+        setBilbords(fetchAllBilbords)
+        setPages(totalPages)
       }
     } catch (error) {
       console.error('Greška prilikom preuzimanja bilborda:', error)
     }
   }
 
-  console.log('myBilbords', bilbords)
+  const handleNextPage = () => {
+    if (page < pages) setPage((prevPage) => prevPage + 1)
+  }
+
+  const handlePrevPage = () => {
+    if (page > 1) setPage((prevPage) => prevPage - 1)
+  }
 
   useEffect(() => {
-    getBilbords()
-    // eslint-disable-next-line
-  }, [])
+    getBilbords(page)
+  }, [page])
 
-  // Držimo izabranu sliku
-  const handleImageUpload = (event) => {
-    console.log('USAOOO', event)
+  // Obrada izabrane slike za specifičan bilbord
+  const handleImageUpload = (event, bilbordId) => {
     const file = event.target.files[0]
-
-    console.log('Izabrani fajl:', file) // Proverite da li je fajl pravilno izabran
     if (file) {
-      setSelectedImage(URL.createObjectURL(file))
+      setImagesByBilbord((prev) => ({
+        ...prev,
+        [bilbordId]: URL.createObjectURL(file),
+      }))
     }
   }
 
   // Aktiviranje file input-a
-  const triggerFileInput = (bilbord) => {
-    setSelectedBilbord(bilbord) // Povezivanje trenutnog bilborda sa slikom
+  const triggerFileInput = (bilbordId) => {
+    fileInputRef.current.dataset.bilbordId = bilbordId
     fileInputRef.current.click()
   }
 
   // Funkcija za upload slike
-  const handleSaveChanges = async () => {
-    if (!selectedImage || !selectedBilbord) {
+  const handleSaveChanges = async (bilbordId) => {
+    if (!imagesByBilbord[bilbordId]) {
       toast.error('Nema izabrane slike.')
       return
     }
 
     setUploading(true)
 
-    const formData = new FormData()
     const file = fileInputRef.current.files[0]
-
+    const formData = new FormData()
     formData.append('image', file)
 
     try {
-      // eslint-disable-next-line
-      const { data } = await uploadBilbordApi(selectedBilbord._id, formData)
-
+      await uploadBilbordApi(bilbordId, formData)
       toast.success('Slika uspešno sačuvana!')
       getBilbords() // Revalidiranje bilborda nakon uspešnog upload-a
 
-      // Resetovanje stanja da ne bi moglo da se spamuje dugme dok se ne doda nova slika
-      setSelectedImage(null)
-      setSelectedBilbord(null)
+      setImagesByBilbord((prev) => {
+        const updated = { ...prev }
+        delete updated[bilbordId]
+        return updated
+      })
     } catch (error) {
       console.error('Greška prilikom upload-a slike:', error)
       toast.error('Greška prilikom upload-a slike.')
@@ -227,70 +90,78 @@ const ClientAdds = () => {
     }
   }
 
-  console.log('selectedImage', selectedImage)
-
   return (
     <div className="clientAddWrapper">
-      <div className="clientAddsContainer">
-        {bilbords.map(
-          (bilbord) => (
-            console.log('bilbord', bilbord),
-            (
-              <div key={bilbord._id} className="clientAddsCard">
-                <h3 className="bilbordName">{`Bilbord ${bilbord.name}`}</h3>
-                <div className="uploadSection">
-                  <p className="imageInfo">
-                    Preporučena dimenzija slike: <strong>1920x1080</strong>{' '}
-                    (16:9 format).
-                  </p>
-                  <p
-                    className="uploadButton"
-                    onClick={() => triggerFileInput(bilbord)}
-                  >
-                    <FiPlus size={24} />
-                    <span>Dodaj sliku</span>
-                  </p>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={handleImageUpload}
-                  />
-                </div>
-                <div className="imagePreview">
-                  {selectedImage ? (
-                    <img
-                      src={selectedImage || '/public/images/defaultImage.png'} // Prikazivanje izabrane slike
-                      alt="Selected"
-                      className="previewImage"
-                    />
-                  ) : (
-                    <img
-                      // src={
-                      //   'http://localhost:5000/uploads/bilbord/676c389e405aceae42332dcf/1735173129930_lhujxuj14.jpg' ||
-                      //   'defaultImage.jpg'
-                      // } // Ako nema izabrane slike, prikazujemo sliku iz baze
-
-                      src={
-                        bilbord.imageUrl || '/public/images/defaultImage.png'
-                      }
-                      alt="Bilbord"
-                      className="previewImage"
-                    />
-                  )}
-                </div>
-                <p
-                  onClick={handleSaveChanges}
-                  className="submitUploadImage"
-                  disabled={uploading}
-                >
-                  {uploading ? 'Dodavanje...' : 'Sačuvaj izmenu'}
-                </p>
-              </div>
-            )
-          )
-        )}
+      {/* Povratak na prethodnu stranicu */}
+      <Back />
+      <div className="allBilbordsWrapper">
+        {bilbords.map((bilbord) => (
+          <div key={bilbord._id} className="clientAddsContainer">
+            <h3 className="bilbordName">{`Bilbord: ${bilbord.name}`}</h3>
+            <div className="uploadSection">
+              <p className="imageInfo">
+                Preporučena dimenzija slike: <strong>1920x1080</strong> (16:9
+                format).
+              </p>
+              <p
+                className="uploadButton"
+                onClick={() => triggerFileInput(bilbord._id)}
+              >
+                <FiPlus size={24} />
+                <span>Dodaj sliku</span>
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(event) =>
+                  handleImageUpload(
+                    event,
+                    fileInputRef.current.dataset.bilbordId
+                  )
+                }
+              />
+            </div>
+            <div className="imagePreview">
+              <img
+                src={
+                  imagesByBilbord[bilbord._id] ||
+                  bilbord.imageUrl ||
+                  '/public/images/defaultImage.png'
+                }
+                alt="Bilbord"
+                className="previewImage"
+              />
+            </div>
+            <p
+              onClick={() => handleSaveChanges(bilbord._id)}
+              className="submitUploadImage"
+              disabled={uploading}
+            >
+              {uploading ? 'Dodavanje...' : 'Sačuvaj izmenu'}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div className="paginationControls">
+        <button
+          className="paginationBtn"
+          onClick={handlePrevPage}
+          disabled={page === 1}
+        >
+          Nazad
+        </button>
+        <span>
+          Stranica {page} of {pages}
+        </span>
+        <button
+          className="paginationBtn"
+          onClick={handleNextPage}
+          disabled={page === pages}
+        >
+          Dalje
+        </button>
       </div>
     </div>
   )

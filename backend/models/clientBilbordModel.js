@@ -6,6 +6,10 @@ const autoIncrement = mongooseSequence(mongoose) // Prosleđivanje mongoose inst
 
 const clientBilbordSchema = mongoose.Schema(
   {
+    name: {
+      type: String,
+      default: '',
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,

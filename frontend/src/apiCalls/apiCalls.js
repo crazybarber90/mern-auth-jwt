@@ -37,13 +37,35 @@ export const uploadBilbordApi = (id, formData) => {
 }
 
 // Funkcija za preuzimanje bilborda po userId
-export const getClientBilbordsApi = (userId) => {
-  return api.get(`/bilbord/${userId}`).then((response) => response.data)
+export const getClientBilbordsApi = ({ userId, page }) => {
+  return api
+    .get(`/bilbord/${userId}?page=${page}`)
+    .then((response) => response.data)
 }
 
 // Funkcija za preuzimanje bilborda po userId
 export const getBilbordApi = ({ userId, bilbordId }) => {
   return api
     .get(`/bilbord/${userId}/${bilbordId}`)
+    .then((response) => response.data)
+}
+// FUNKCIJA ZA ADMINA I SUPERADMINA ZA PREUZIMANJE SVIH KLIJENATA
+export const getAllClientsApi = (page = 1) => {
+  return api
+    .get(`/clients/all-clients?page=${page}`)
+    .then((response) => response.data)
+}
+
+export const getAllClientsBilbordsApi = ({ userId, page }) => {
+  console.log('userId', userId, 'page', page)
+  return api
+    .get(`/bilbord/all-clients-bilbords/${userId}?page=${page}`)
+    .then((response) => response.data)
+}
+
+// FUNKCIJA ZA ADMINA I SUPERADMINA ZA DODAVANJE BILBORDA KORISNIKU
+export const adminCreateBilbordForUserApi = (userId) => {
+  return api
+    .post(`/bilbord/adminAddBilbord/${userId}`)
     .then((response) => response.data)
 }

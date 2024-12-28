@@ -120,14 +120,21 @@ const uploadBilbordImage = asyncHandler(async (req, res) => {
 // @access  Private
 const getBilbordsByUserId = asyncHandler(async (req, res) => {
   const { userId } = req.params
+  const page = Number(req.query.page) || 1 // Trenutna stranica, podrazumevano 1
+  const limit = 10 // Broj bilborda po stranici
+  const skip = (page - 1) * limit // Broj dokumenata koji treba preskočiti
 
-  // Preuzimanje bilborda za korisnika sa userId
-  const bilbords = await ClientBilbord.find({ userId })
+  // Preuzimanje bilborda sa paginacijom
+  const bilbords = await ClientBilbord.find({ userId }).skip(skip).limit(limit)
 
+  console.log('BILBORDIIIII', bilbords)
   if (!bilbords || bilbords.length === 0) {
     res.status(404)
     throw new Error('Bilbords not found for this user')
   }
+
+  // Ukupan broj bilborda za korisnika
+  const totalBilbords = await ClientBilbord.countDocuments({ userId })
 
   // Dodavanje punog URL-a za imageUrl svakom bilbordu
   const bilbordsWithFullUrls = bilbords.map((bilbord) => {
@@ -137,12 +144,20 @@ const getBilbordsByUserId = asyncHandler(async (req, res) => {
     return { ...bilbord.toObject(), imageUrl: fullImageUrl } // Vraćamo objekt sa punim URL-om
   })
 
-  res.status(200).json(bilbordsWithFullUrls)
+  // Vraćanje paginiranih rezultata
+  res.status(200).json({
+    bilbords: bilbordsWithFullUrls,
+    page,
+    pages: Math.ceil(totalBilbords / limit), // Ukupan broj stranica
+    totalBilbords,
+  })
 })
 
 // @desc    Get specific bilbord by userId and bilbordId
 // @route   GET /api/bilbords/:userId/:bilbordId
 // @access  Public
+// Ruta za preuzimanje bilborda po userId i bilbordId direktno za klijentov ekran
+
 const getBilbordByUserAndBilbordId = asyncHandler(async (req, res) => {
   const { userId, bilbordId } = req.params
 
@@ -171,9 +186,29 @@ const getBilbordByUserAndBilbordId = asyncHandler(async (req, res) => {
   res.status(200).json(bilbordWithFullUrl)
 })
 
+// Admin Kreira novi bilbord za određenog korisnika
+const createBilbordForUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params
+
+  const bilbord = await ClientBilbord.create({
+    name: `Bilbord-${Date.now()}`, // Jedinstveno ime
+    userId,
+    image: '', // Početno prazno polje za sliku
+    timestamp: Date.now(),
+  })
+
+  if (bilbord) {
+    res.status(201).json(bilbord)
+  } else {
+    res.status(400)
+    throw new Error('Greška prilikom kreiranja bilborda')
+  }
+})
+
 export {
   upload,
   uploadBilbordImage,
   getBilbordsByUserId,
   getBilbordByUserAndBilbordId,
+  createBilbordForUser,
 }
