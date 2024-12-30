@@ -50,9 +50,18 @@ const Header = () => {
         (userInfo.role === 'superadmin' || userInfo.role === 'admin') &&
         adminModal && <AdminDashboad />}
 
-      <div>
+      <div className="navbar">
         <Link to="/" className="navbarbrand">
           DIGITAL ADDS
+        </Link>
+        <Link to="/proizvodi" className="navbarbrand">
+          Naši proizvodi
+        </Link>
+        <Link to="/cenovnik" className="navbarbrand">
+          Cenovnik
+        </Link>
+        <Link to="/kontakt" className="navbarbrand">
+          Kontakt
         </Link>
       </div>
 
@@ -96,72 +105,20 @@ const Header = () => {
             </li>
           </>
         ) : (
-          <>
+          <div className="navitemsWrapper">
             <li className="nav-item">
               <Link to="/login" className="nav-link">
-                <FaSignInAlt /> Sign In
+                <FaSignInAlt /> Uloguj se
               </Link>
             </li>
             <li className="nav-item">
               <Link to="/register" className="nav-link">
-                <FaSignOutAlt /> Sign Up
+                <FaSignOutAlt /> Registruj se
               </Link>
             </li>
-          </>
+          </div>
         )}
       </div>
-
-      {/* <nav className="navbar">
-        <div className="container">
-          <div>
-            <Link to="/" className="navbar-brand">
-              DIGITAL ADDS
-            </Link>
-          </div>
-          <button className="navbar-toggle" aria-label="Toggle navigation">
-            ☰
-          </button>
-          <div className="navbar-collapse">
-            <ul className="nav">
-              {userInfo ? (
-                <>
-                  <li className="nav-item dropdown">
-                    <button className="dropdown-toggle">{userInfo.name}</button>
-                    <ul className="dropdown-menu">
-                      <li>
-                        <Link to="/profile" className="dropdown-item">
-                          Profile
-                        </Link>
-                      </li>
-                      <li>
-                        <button
-                          onClick={logoutHandler}
-                          className="dropdown-item"
-                        >
-                          Logout
-                        </button>
-                      </li>
-                    </ul>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li className="nav-item">
-                    <Link to="/login" className="nav-link">
-                      <FaSignInAlt /> Sign In
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/register" className="nav-link">
-                      <FaSignOutAlt /> Sign Up
-                    </Link>
-                  </li>
-                </>
-              )}
-            </ul>
-          </div>
-        </div>
-      </nav> */}
     </header>
   )
 }

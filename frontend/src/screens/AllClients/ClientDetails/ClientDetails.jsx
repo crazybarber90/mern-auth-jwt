@@ -126,6 +126,7 @@ const ClientDetails = () => {
     if (userInfo) {
       fetchClientsBilbords(page) // Učitaj bilborde za trenutnu stranicu
     }
+    // eslint-disable-next-line
   }, [page, userInfo])
 
   return (
