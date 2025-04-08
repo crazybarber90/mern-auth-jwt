@@ -6,6 +6,7 @@ import {
   uploadBilbordImage,
   getBilbordByUserAndBilbordId,
   createBilbordForUser,
+  deleteBilbordOfUser,
 } from '../controllers/uploadImgControler.js'
 
 import { protect } from '../middleware/authMiddleware.js' //  zaštita rute
@@ -22,5 +23,6 @@ router.get('/:userId/:bilbordId', getBilbordByUserAndBilbordId)
 router.post('/:id', protect, upload.single('image'), uploadBilbordImage)
 // Ruta za admin-kreiranje novog bilborda za korisnika
 router.post('/adminAddBilbord/:userId', protect, createBilbordForUser)
-
+// Ruta za admin-brisanje bilborda korisnika po bilbord_id
+router.delete('/adminDeleteBilbord/:bilbord_id', protect, deleteBilbordOfUser)
 export default router

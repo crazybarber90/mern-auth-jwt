@@ -42,3 +42,23 @@
   background-color: #a6c8ff;
   cursor: not-allowed;
 }
+.passwordWrapper {
+  position: relative;
+  width: 95%;
+}
+
+.passwordWrapper .formControl {
+  padding-right: 40px; /* ostavi prostor za ikonicu */
+}
+
+.toggleBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #666;
+}

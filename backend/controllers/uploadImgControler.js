@@ -205,10 +205,26 @@ const createBilbordForUser = asyncHandler(async (req, res) => {
   }
 })
 
+// Admin Briše bilbord za određenog korisnika
+
+const deleteBilbordOfUser = asyncHandler(async (req, res) => {
+  const { bilbord_id } = req.params
+
+  const bilbord = await ClientBilbord.findByIdAndDelete(bilbord_id)
+
+  if (bilbord) {
+    res.status(200).json({ message: 'Bilbord uspešno obrisan', bilbord })
+  } else {
+    res.status(404)
+    throw new Error('Bilbord nije pronađen')
+  }
+})
+
 export {
   upload,
   uploadBilbordImage,
   getBilbordsByUserId,
   getBilbordByUserAndBilbordId,
   createBilbordForUser,
+  deleteBilbordOfUser,
 }

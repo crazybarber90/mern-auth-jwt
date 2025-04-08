@@ -12,6 +12,8 @@ const ProfileScreen = () => {
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const dispatch = useDispatch()
   const { userInfo } = useSelector((state) => state.auth)
@@ -71,7 +73,7 @@ const ProfileScreen = () => {
             className="formControl"
           />
         </div>
-        <div className="formGroup">
+        {/* <div className="formGroup">
           <label htmlFor="password">Password</label>
           <input
             id="password"
@@ -81,8 +83,28 @@ const ProfileScreen = () => {
             onChange={(e) => setPassword(e.target.value)}
             className="formControl"
           />
-        </div>
+        </div> */}
         <div className="formGroup">
+          <label htmlFor="password">Password</label>
+          <div className="passwordWrapper">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="formControl"
+            />
+            <button
+              type="button"
+              className="toggleBtn"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? '🙈' : '👁️'}
+            </button>
+          </div>
+        </div>
+        {/* <div className="formGroup">
           <label htmlFor="confirmPassword">Confirm Password</label>
           <input
             id="confirmPassword"
@@ -92,7 +114,28 @@ const ProfileScreen = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="formControl"
           />
+        </div> */}
+        <div className="formGroup">
+          <label htmlFor="confirmPassword">Confirm Password</label>
+          <div className="passwordWrapper">
+            <input
+              id="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="formControl"
+            />
+            <button
+              type="button"
+              className="toggleBtn"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? '🙈' : '👁️'}
+            </button>
+          </div>
         </div>
+
         <button type="submit" className="btnPrimary" disabled={isLoading}>
           Update
         </button>

@@ -36,4 +36,15 @@
   background-color: whitesmoke;
   border: 1px solid lightgray;
   max-width: 200px;
+  position: relative;
+}
+
+.bilbordDeleteBtn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+  color: white;
+  background-color: gray;
+  padding: 3px 5px;
 }

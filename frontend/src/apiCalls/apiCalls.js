@@ -71,3 +71,10 @@ export const adminCreateBilbordForUserApi = (userId) => {
     .post(`/bilbord/adminAddBilbord/${userId}`)
     .then((response) => response.data)
 }
+
+// FUNKCIJA ZA ADMINA I SUPERADMINA ZA DODAVANJE BILBORDA KORISNIKU
+export const adminDeleteBilbordOfUserApi = (bilbordId) => {
+  return api
+    .delete(`/bilbord/adminDeleteBilbord/${bilbordId}`)
+    .then((response) => response.data)
+}

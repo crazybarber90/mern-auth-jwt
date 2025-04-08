@@ -47,7 +47,9 @@ npm install
 ```
 
 # Run frontend (:3000) & backend (:5000)
+za pokretanje i fronta i backenda odjednom koristi se sledeca komanda
 npm run dev
+(ukoliko nesto ne radi , proveriti da je app povezana sa mongoDB na pepy9a0a)
 
 # Run backend only
 npm run server

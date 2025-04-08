@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 import './clientDetails.css'
 import { useParams } from 'react-router-dom'
 import {
-  adminCreateBilbordForUserApi, // API za dodavanje novog bilborda za korisnika
+  adminCreateBilbordForUserApi,
+  adminDeleteBilbordOfUserApi, // API za dodavanje novog bilborda za korisnika
   getAllClientsBilbordsApi, // API za dohvatanje svih bilborda klijenta
   uploadBilbordApi, // API za upload slike za bilbord
 } from '../../../apiCalls/apiCalls'
@@ -45,7 +46,7 @@ const ClientDetails = () => {
         setPages(totalPages) // Postavi ukupan broj stranica
       }
     } catch (error) {
-      console.log(error) // Ispis greške u konzolu
+      console.error(error) // Ispis greške u konzolu
     }
   }
 
@@ -117,7 +118,22 @@ const ClientDetails = () => {
       }
     } catch (error) {
       toast.error('Greška prilikom dodavanja novog bilborda.') // Prikaz greške
-      console.log(error)
+      console.error(error)
+    }
+  }
+  // Funkcija za admin-brisanje bilborda
+  const handleAdminDeleteBilbord = async (bilbordId) => {
+    try {
+      const deletedBilbord = await adminDeleteBilbordOfUserApi(bilbordId)
+      if (deletedBilbord) {
+        toast.success('Bilbord uspešno obrisan.')
+
+        // Ponovo učitaj podatke sa servera
+        fetchClientsBilbords(page)
+      }
+    } catch (error) {
+      console.error('error', error)
+      toast.error('Greška prilikom brisanja bilborda.')
     }
   }
 
@@ -145,6 +161,13 @@ const ClientDetails = () => {
       <div className="allBilbordsWrapper">
         {clientBilbords.map((bilbord) => (
           <div key={bilbord._id} className="clientAddsContainer">
+            {/* ADMIN DELETE BILBORD */}
+            <span
+              className="bilbordDeleteBtn"
+              onClick={() => handleAdminDeleteBilbord(bilbord._id)}
+            >
+              X
+            </span>
             <h3 className="bilbordName">{`Ime: ${bilbord.name}`}</h3>
             <h3 className="bilbordName">{`Id: ${bilbord.bilbord_id}`}</h3>
             <div className="uploadSection">
