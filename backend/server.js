@@ -16,9 +16,14 @@ connectDB()
 
 const app = express()
 
+// const corsOptions = {
+//   origin: 'http://localhost:3000', // Domen frontenda
+//   credentials: true, // Omogući slanje cookies
+// }
+
 const corsOptions = {
-  origin: 'http://localhost:3000', // Domen frontenda
-  credentials: true, // Omogući slanje cookies
+  origin: ['http://localhost:3000', 'https://digitalizujse.rs'], // oba
+  credentials: true,
 }
 
 app.use(cors(corsOptions))
