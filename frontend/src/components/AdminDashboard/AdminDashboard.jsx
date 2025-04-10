@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
-import './adminDashboard.css'
+import './admindashboard.css'
 import { Link } from 'react-router-dom'
 import { hideModal } from '../../slices/modalsSlices'
 
