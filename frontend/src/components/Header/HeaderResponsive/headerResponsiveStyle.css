@@ -1,0 +1,49 @@
+/* Responsive Header Container */
+.menu-button {
+  cursor: pointer;
+}
+.dropdown-menu-container {
+  width: 100%;
+  position: relative;
+  z-index: 5;
+}
+/* Dropdown menu */
+.menu-items {
+  display: none;
+  background-color: #343a40;
+  color: white;
+  flex-direction: column;
+  padding: 10px;
+  animation: fadeIn 0.3s ease-in-out;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  width: 100vw;
+}
+
+.menu-items.open {
+  display: flex;
+}
+
+.menu-items a {
+  margin: 10px 0;
+  padding: 10px;
+  border-bottom: 1px solid #555;
+  cursor: pointer;
+}
+
+.menu-items p:hover {
+  background-color: #495057;
+}
+
+/* Animacija (nije obavezna ali je lep efekat) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

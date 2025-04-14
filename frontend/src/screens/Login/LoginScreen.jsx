@@ -12,6 +12,7 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -42,7 +43,7 @@ const LoginScreen = () => {
 
   return (
     <FormContainer>
-      <h1 className="loginTitle">Sign In</h1>
+      <h1 className="loginTitle">Prijavljivanje</h1>
       <form className="loginForm" onSubmit={submitHandler}>
         <div className="formGroup">
           <label htmlFor="email">Email Address</label>
@@ -58,25 +59,35 @@ const LoginScreen = () => {
 
         <div className="formGroup">
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="formControl"
-          />
+          <div className="login-passwordWrapper">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="formControl"
+            />
+            <button
+              type="button"
+              className="toggleBtn"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? '🙈' : '👁️'}
+            </button>
+          </div>
         </div>
 
         <button type="submit" className="btnPrimary" disabled={isLoading}>
-          Sign In
+          Uloguj se
         </button>
       </form>
 
       {isLoading && <Loader />}
 
       <div className="registerLink">
-        <span>New Customer?</span> <Link to="/register">Register</Link>
+        <span>Ako si nov korisnik?</span>{' '}
+        <Link to="/register">Registruj se ovde</Link>
       </div>
     </FormContainer>
   )

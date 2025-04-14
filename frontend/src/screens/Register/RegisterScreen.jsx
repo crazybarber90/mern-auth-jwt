@@ -14,6 +14,7 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -46,7 +47,7 @@ const RegisterScreen = () => {
 
   return (
     <FormContainer>
-      <h1 className="registerTitle">Register</h1>
+      <h1 className="registerTitle">Registracija</h1>
       <form className="registerForm" onSubmit={submitHandler}>
         <div className="formGroup">
           <label htmlFor="name">Name</label>
@@ -72,33 +73,44 @@ const RegisterScreen = () => {
         </div>
         <div className="formGroup">
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="formControl"
-          />
+          <div className="login-passwordWrapper">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="formControl"
+            />
+            <button
+              type="button"
+              className="toggleBtn"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? '🙈' : '👁️'}
+            </button>
+          </div>
         </div>
         <div className="formGroup">
           <label htmlFor="confirmPassword">Confirm Password</label>
-          <input
-            id="confirmPassword"
-            type="password"
-            placeholder="Confirm password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="formControl"
-          />
+          <div className="login-passwordWrapper">
+            <input
+              id="confirmPassword"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="formControl"
+            />
+          </div>
         </div>
         <button type="submit" className="btnPrimary" disabled={isLoading}>
-          Register
+          Registruj se
         </button>
         {isLoading && <Loader />}
       </form>
-      <div className="footer">
-        Already have an account? <Link to="/login">Login</Link>
+      <div className="register-footer">
+        Već si registrovan korisnik? <Link to="/login">Uloguj se ovde</Link>
       </div>
     </FormContainer>
   )

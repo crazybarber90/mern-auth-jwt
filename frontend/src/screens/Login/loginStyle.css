@@ -37,6 +37,10 @@
   color: white;
   cursor: pointer;
 }
+.login-passwordWrapper {
+  position: relative;
+  width: 95%;
+}
 
 .btnPrimary:disabled {
   background-color: #a6c8ff;

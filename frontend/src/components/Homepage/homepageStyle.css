@@ -77,3 +77,51 @@
   height: 360px;
   border-radius: 8px;
 }
+
+@media (max-width: 1500px) {
+  .left {
+    width: 40%;
+    padding: 0;
+    margin: 0;
+  }
+  .right {
+    width: 60%;
+    height: auto;
+  }
+  .slider {
+    width: 80%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    height: auto;
+    align-items: center;
+    justify-content: center;
+  }
+  .left {
+    width: 80%;
+  }
+  .right {
+    width: 80%;
+    height: auto;
+  }
+  .rightText {
+    width: 90%;
+  }
+  .slider {
+    width: 90%;
+  }
+}
+
+@media (max-width: 768px) {
+  .left {
+    width: 90%;
+    padding: 0;
+    margin: 0;
+  }
+  .right {
+    width: 100%;
+  }
+}

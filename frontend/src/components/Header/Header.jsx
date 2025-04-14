@@ -1,6 +1,6 @@
 import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { RxHamburgerMenu } from 'react-icons/rx'
 
 import AdminDashboad from '../AdminDashboard/AdminDashboard'
@@ -9,10 +9,12 @@ import './headerStyle.css'
 import { useLogoutMutation } from '../../slices/usersApiSlice'
 import { useState } from 'react'
 import { toggleAdminModal } from '../../slices/modalsSlices'
+import HeaderResponsive from './HeaderResponsive/HeaderResponsive'
 
 const Header = () => {
   const { userInfo } = useSelector((state) => state.auth)
   const [showDropdown, setShowDropdownd] = useState(false)
+  const [isColapsed, setIsColapsed] = useState(false)
   const { adminModal } = useSelector((state) => state.modals.activeModal)
 
   const dispatch = useDispatch()
@@ -29,8 +31,6 @@ const Header = () => {
       console.error(err)
     }
   }
-
-  console.log('adminModal', adminModal)
 
   return (
     <header className="header">
@@ -50,19 +50,46 @@ const Header = () => {
         (userInfo.role === 'superadmin' || userInfo.role === 'admin') &&
         adminModal && <AdminDashboad />}
 
+      <div className="header-responsive">
+        <HeaderResponsive
+          isColapsed={isColapsed}
+          setIsColapsed={setIsColapsed}
+        />
+      </div>
+
       <div className="navbar">
-        <Link to="/" className="navbarbrand">
-          DIGITAL ADDS
-        </Link>
-        <Link to="/proizvodi" className="navbarbrand">
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            isActive ? 'navbarbrand active' : 'navbarbrand'
+          }
+        >
+          O Nama
+        </NavLink>
+        <NavLink
+          to="/proizvodi"
+          className={({ isActive }) =>
+            isActive ? 'navbarbrand active' : 'navbarbrand'
+          }
+        >
           Naši proizvodi
-        </Link>
-        <Link to="/cenovnik" className="navbarbrand">
+        </NavLink>
+        <NavLink
+          to="/cenovnik"
+          className={({ isActive }) =>
+            isActive ? 'navbarbrand active' : 'navbarbrand'
+          }
+        >
           Cenovnik
-        </Link>
-        <Link to="/kontakt" className="navbarbrand">
+        </NavLink>
+        <NavLink
+          to="/kontakt"
+          className={({ isActive }) =>
+            isActive ? 'navbarbrand active' : 'navbarbrand'
+          }
+        >
           Kontakt
-        </Link>
+        </NavLink>
       </div>
 
       <div>
