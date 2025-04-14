@@ -78,3 +78,11 @@ export const adminDeleteBilbordOfUserApi = (bilbordId) => {
     .delete(`/bilbord/adminDeleteBilbord/${bilbordId}`)
     .then((response) => response.data)
 }
+
+// FUNKCIJA ZA KLIJENTA DA EDITUJE IME BILBORDA
+export const clientUpdateBilbordNameApi = (bilbordId, newName) => {
+  console.log('NOVO IME IZ APIJA', { newName })
+  return api
+    .post(`/bilbord/clientUpdateBilbordName/${bilbordId}`, newName)
+    .then((response) => response.data)
+}

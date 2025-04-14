@@ -149,13 +149,12 @@ const ClientDetails = () => {
     <div className="clientAddWrapper">
       {/* Povratak na prethodnu stranicu */}
       <Back />
-      <div className="addNewBilbordContainer">
-        <h2>Dodaj novi bilbord klijentu</h2>
-        <CiSquarePlus
-          cursor="pointer"
-          size={46}
-          onClick={handleAdminCreateBilbord}
-        />
+      <div
+        onClick={handleAdminCreateBilbord}
+        className="addNewBilbordContainer"
+      >
+        <p>DODAJ BILBORD</p>
+        <CiSquarePlus cursor="pointer" size={60} />
       </div>
 
       <div className="allBilbordsWrapper">
@@ -170,11 +169,11 @@ const ClientDetails = () => {
             </span>
             <h3 className="bilbordName">{`Ime: ${bilbord.name}`}</h3>
             <h3 className="bilbordName">{`Id: ${bilbord.bilbord_id}`}</h3>
+            <p className="imageInfo">
+              Preporučena dimenzija slike: <strong>1920x1080</strong> (16:9
+              format).
+            </p>
             <div className="uploadSection">
-              <p className="imageInfo">
-                Preporučena dimenzija slike: <strong>1920x1080</strong> (16:9
-                format).
-              </p>
               <p
                 className="uploadButton"
                 onClick={() => triggerFileInput(bilbord._id)}

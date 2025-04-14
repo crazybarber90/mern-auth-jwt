@@ -1,20 +1,27 @@
 import { useState, useEffect, useRef } from 'react'
 import { FiPlus } from 'react-icons/fi'
 import './clientAddsStyle.css'
-import { uploadBilbordApi, getClientBilbordsApi } from '../../apiCalls/apiCalls'
+import {
+  uploadBilbordApi,
+  getClientBilbordsApi,
+  clientUpdateBilbordNameApi,
+} from '../../apiCalls/apiCalls'
 import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
 import Back from '../../components/BackIcon/Back'
+import { GrEdit } from 'react-icons/gr'
 
 const ClientAdds = () => {
   const [bilbords, setBilbords] = useState([]) // Držimo sve bilborde
   const [imagesByBilbord, setImagesByBilbord] = useState({}) // Pratimo slike za svaki bilbord
   const [uploading, setUploading] = useState(false) // Status dodavanja slike
   const fileInputRef = useRef(null) // Ref za input element
+  const editNameRefs = useRef({})
   const { userInfo } = useSelector((state) => state.auth)
-
   const [page, setPage] = useState(1) // Trenutna stranica
   const [pages, setPages] = useState(1) // Ukupan broj stranica
+  const [editNameById, setEditNameById] = useState({})
+  const [newNameById, setNewNameById] = useState({})
 
   // Preuzimanje bilborda za korisnika sa userId
   const getBilbords = async () => {
@@ -90,19 +97,123 @@ const ClientAdds = () => {
     }
   }
 
+  // Funkcija za update imena
+  const handleSaveName = async (bilbordId) => {
+    const newName = newNameById[bilbordId]
+    if (!newName) return
+
+    try {
+      // pozovi svoj API za promenu imena ovde, npr:
+      await clientUpdateBilbordNameApi(bilbordId, { name: newName })
+      toast.success('Ime bilborda uspešno izmenjeno!')
+      setEditNameById((prev) => ({ ...prev, [bilbordId]: false }))
+      getBilbords()
+    } catch (err) {
+      toast.error('Greška prilikom izmene imena.')
+    }
+  }
+
+  //toggle izmedju imena i inputa za izmenu imena
+  const toggleEditName = (id, currentName) => {
+    setEditNameById((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }))
+    setNewNameById((prev) => ({
+      ...prev,
+      [id]: currentName, // Popuni trenutnim imenom
+    }))
+  }
+
+  // Skini input za promenu imena bilborda kad se klikne u prazno
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      Object.keys(editNameRefs.current).forEach((id) => {
+        const ref = editNameRefs.current[id]
+        if (ref && !ref.contains(event.target)) {
+          setEditNameById((prev) => ({
+            ...prev,
+            [id]: false,
+          }))
+        }
+      })
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   return (
     <div className="clientAddWrapper">
       {/* Povratak na prethodnu stranicu */}
       <Back />
       <div className="allBilbordsWrapper">
         {bilbords.map((bilbord) => (
-          <div key={bilbord._id} className="clientAddsContainer">
-            <h3 className="bilbordName">{`Bilbord: ${bilbord.name}`}</h3>
-            <div className="uploadSection">
-              <p className="imageInfo">
-                Preporučena dimenzija slike: <strong>1920x1080</strong> (16:9
-                format).
+          <div
+            key={bilbord._id}
+            className="clientAddsContainer"
+            ref={(el) => (editNameRefs.current[bilbord._id] = el)}
+          >
+            <div>
+              <p className="bilbordName">
+                Izmeni ime
+                <span
+                  style={{
+                    marginLeft: '15px',
+                    marginTop: '15px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <GrEdit
+                    onClick={() => toggleEditName(bilbord._id, bilbord.name)}
+                  />
+                </span>
               </p>
+
+              {editNameById[bilbord._id] ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-around',
+                    width: '230px',
+                  }}
+                >
+                  <input
+                    style={{ marginTop: '5px', width: '160px' }}
+                    value={newNameById[bilbord._id] || ''}
+                    type="text"
+                    placeholder="Izmeni ime bilborda"
+                    onChange={(e) =>
+                      setNewNameById((prev) => ({
+                        ...prev,
+                        [bilbord._id]: e.target.value,
+                      }))
+                    }
+                  />
+                  <span
+                    onClick={() => handleSaveName(bilbord._id)}
+                    style={{
+                      padding: '10px 5px',
+                      backgroundColor: 'gray',
+                      cursor: 'pointer',
+                      color: 'white',
+                    }}
+                  >
+                    izmeni
+                  </span>
+                </div>
+              ) : (
+                <h3>{bilbord.name}</h3>
+              )}
+            </div>
+            <p className="imageInfo">
+              Preporučena dimenzija slike: <strong>1920x1080</strong> (16:9
+              format).
+            </p>
+            <div className="uploadSection">
               <p
                 className="uploadButton"
                 onClick={() => triggerFileInput(bilbord._id)}

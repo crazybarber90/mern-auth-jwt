@@ -5,9 +5,9 @@ import { closeAllModals } from '../slices/modalsSlices'
 import { toast } from 'react-toastify'
 
 const api = axios.create({
-  // baseURL: 'http://localhost:5000/api',
-  baseURL: 'https://digitalizujse.rs/api',
-
+  baseURL: 'http://localhost:5000/api',
+  // baseURL: 'https://digitalizujse.rs/api',
+  // baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

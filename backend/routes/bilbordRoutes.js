@@ -7,6 +7,7 @@ import {
   getBilbordByUserAndBilbordId,
   createBilbordForUser,
   deleteBilbordOfUser,
+  clientUpdateBilbordName,
 } from '../controllers/uploadImgControler.js'
 
 import { protect } from '../middleware/authMiddleware.js' //  zaštita rute
@@ -18,6 +19,9 @@ router.get('/all-clients-bilbords/:userId', protect, getBilbordsByUserId)
 router.get('/:userId', protect, getBilbordsByUserId)
 // Ruta za preuzimanje bilborda po userId i bilbordId direktno za klijentov ekran
 router.get('/:userId/:bilbordId', getBilbordByUserAndBilbordId)
+
+// Ruta za edit imena bilborda ( klijent )
+router.post('/clientUpdateBilbordName/:id', protect, clientUpdateBilbordName)
 
 // Ruta za upload slike za bilbord
 router.post('/:id', protect, upload.single('image'), uploadBilbordImage)

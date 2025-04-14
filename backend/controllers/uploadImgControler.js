@@ -220,6 +220,22 @@ const deleteBilbordOfUser = asyncHandler(async (req, res) => {
   }
 })
 
+const clientUpdateBilbordName = asyncHandler(async (req, res) => {
+  const { id } = req.params
+
+  const bilbord = await ClientBilbord.findById(id)
+  const { name: newName } = req.body
+
+  if (bilbord) {
+    bilbord.name = newName // Promena imena
+    await bilbord.save()
+    res.status(200).json({ message: 'Bilbord uspešno obrisan', bilbord })
+  } else {
+    res.status(404)
+    throw new Error('Bilbord nije pronađen')
+  }
+})
+
 export {
   upload,
   uploadBilbordImage,
@@ -227,4 +243,5 @@ export {
   getBilbordByUserAndBilbordId,
   createBilbordForUser,
   deleteBilbordOfUser,
+  clientUpdateBilbordName,
 }
