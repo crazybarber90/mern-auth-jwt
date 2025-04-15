@@ -13,6 +13,7 @@ import { toast } from 'react-toastify' // Prikaz notifikacija korisniku
 import { FiPlus } from 'react-icons/fi' // Ikonica za "dodavanje"
 import Back from '../../../components/BackIcon/Back' // Komponenta za povratak unazad
 import { CiSquarePlus } from 'react-icons/ci' // Ikonica za "dodavanje novog bilborda"
+import ConfirmModal from '../../../components/ConfirmModal/ConfirmModal'
 
 // Glavna komponenta koja prikazuje detalje klijenta
 const ClientDetails = () => {
@@ -28,6 +29,7 @@ const ClientDetails = () => {
   const [uploading, setUploading] = useState(false) // Status učitavanja slike
   const [imagesByBilbord, setImagesByBilbord] = useState({}) // Privremene slike za bilborde
   const fileInputRef = useRef(null) // Referenca na skriveni file input
+  const [showModal, setShowModal] = useState(false) // modal za potvrdu brisanja bilborda (ADMIN)
 
   // Funkcija za dohvatanje svih bilborda klijenta
   const fetchClientsBilbords = async (page) => {
@@ -127,7 +129,7 @@ const ClientDetails = () => {
       const deletedBilbord = await adminDeleteBilbordOfUserApi(bilbordId)
       if (deletedBilbord) {
         toast.success('Bilbord uspešno obrisan.')
-
+        setShowModal(false)
         // Ponovo učitaj podatke sa servera
         fetchClientsBilbords(page)
       }
@@ -145,6 +147,8 @@ const ClientDetails = () => {
     // eslint-disable-next-line
   }, [page, userInfo])
 
+  console.log('SHOW MODAL', showModal)
+
   return (
     <div className="clientAddWrapper">
       {/* Povratak na prethodnu stranicu */}
@@ -160,10 +164,18 @@ const ClientDetails = () => {
       <div className="allBilbordsWrapper">
         {clientBilbords.map((bilbord) => (
           <div key={bilbord._id} className="clientAddsContainer">
+            {showModal && (
+              <ConfirmModal
+                isOpen={showModal}
+                onConfirm={() => handleAdminDeleteBilbord(bilbord._id)}
+                onCancel={() => setShowModal(false)}
+              />
+            )}
+            {console.log('BILBORD', bilbord)}
             {/* ADMIN DELETE BILBORD */}
             <span
               className="bilbordDeleteBtn"
-              onClick={() => handleAdminDeleteBilbord(bilbord._id)}
+              onClick={() => setShowModal(true)}
             >
               X
             </span>
@@ -211,6 +223,15 @@ const ClientDetails = () => {
               disabled={uploading}
             >
               {uploading ? 'Dodavanje...' : 'Sačuvaj izmenu'}
+            </p>
+            <p
+              style={{
+                width: '100%',
+                wordBreak: 'break-all', // ili 'break-word'
+                whiteSpace: 'normal',
+              }}
+            >
+              {`https://digitalizujse.rs/bilbord/${bilbord.userId}/${bilbord._id}`}
             </p>
           </div>
         ))}

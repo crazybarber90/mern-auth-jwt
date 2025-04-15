@@ -1,8 +1,6 @@
 import './headerResponsiveStyle.css'
 import { NavLink } from 'react-router-dom'
 const HeaderResponsive = ({ isColapsed, setIsColapsed }) => {
-  console.log('HeaderResponsive re-render', isColapsed)
-
   return (
     <div className="dropdown-menu-container">
       <h3 onClick={() => setIsColapsed(!isColapsed)} className="menu-button">

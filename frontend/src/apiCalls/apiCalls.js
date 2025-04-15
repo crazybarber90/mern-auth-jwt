@@ -3,7 +3,6 @@ import api from './apiConfig'
 
 // Funkcija za logovanje korisnika po ID
 export const loginUserApi = (data) => {
-  console.log('USAO U login API')
   return api.post('/users/auth', data).then((response) => response.data)
 }
 
@@ -24,9 +23,9 @@ export const updateUserApi = (data) => {
 
 // Funkcija za upload slika za bilbord
 export const uploadBilbordApi = (id, formData) => {
-  for (let pair of formData.entries()) {
-    console.log(`FormData content: ${pair[0]} = ${pair[1]}`)
-  }
+  // for (let pair of formData.entries()) {
+  //   console.log(`FormData content: ${pair[0]} = ${pair[1]}`)
+  // }
   return api
     .post(`/bilbord/${id}`, formData, {
       headers: {
@@ -81,7 +80,6 @@ export const adminDeleteBilbordOfUserApi = (bilbordId) => {
 
 // FUNKCIJA ZA KLIJENTA DA EDITUJE IME BILBORDA
 export const clientUpdateBilbordNameApi = (bilbordId, newName) => {
-  console.log('NOVO IME IZ APIJA', { newName })
   return api
     .post(`/bilbord/clientUpdateBilbordName/${bilbordId}`, newName)
     .then((response) => response.data)

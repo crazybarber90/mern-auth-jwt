@@ -80,6 +80,12 @@
   top: -2px;
 }
 
+.leftArrow-icon {
+  font-size: 3.5rem;
+  color: #337ab7;
+  margin-bottom: 15px;
+}
+
 .products-contact {
   margin-top: 4rem;
   text-align: center;

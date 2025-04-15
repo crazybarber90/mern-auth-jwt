@@ -6,7 +6,7 @@ import User from '../models/userModel.js'
 // @access  Private
 const adminGetAllClients = asyncHandler(async (req, res) => {
   const page = Number(req.query.page) || 1 // Trenutna stranica, podrazumevano 1
-  const limit = 7 // Broj korisnika po stranici
+  const limit = 12 // Broj korisnika po stranici
   const skip = (page - 1) * limit // Broj preskočenih dokumenata
 
   try {

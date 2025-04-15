@@ -1,4 +1,5 @@
 import './productsStyle.css'
+import { FaHandPointLeft } from 'react-icons/fa'
 
 const Products = () => {
   return (
@@ -23,10 +24,15 @@ const Products = () => {
         <div className="products-description">
           <h2>Šta nudimo</h2>
           <ul>
-            <li>LED ekran 32 incha – idealna veličina za isticanje poruke</li>
-            <li>Potpuno otporan na vremenske uslove</li>
+            <li>
+              LED ekran 32 incha – idealna veličina za isticanje promocije /
+              poruke / slike / videa
+            </li>
+            <li>Potpuno otporan mini bilbord na sve vremenske uslove</li>
             <li>Kvalitetna unutrašnja izolacija za dug vek trajanja</li>
-            <li>Platforma za ažuriranje urađena u savremenim tehnologijama</li>
+            <li>
+              Platforma za ažuriranje reklama urađena u savremenim tehnologijama
+            </li>
             <li>
               Lak pristup za korisnike – individualna ili grupna kontrola
               reklama
@@ -34,6 +40,21 @@ const Products = () => {
             <li>
               Formati podržani: slike, galerije (slajder), video do 15 sekundi
             </li>
+            <div
+              style={{
+                width: '80%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                marginTop: '4rem',
+                justifyContent: 'center',
+              }}
+            >
+              <FaHandPointLeft className="leftArrow-icon" />
+              <p>
+                Na prikazanoj slici može se videti tri načina kačenja bilborda
+              </p>
+            </div>
           </ul>
         </div>
       </div>
