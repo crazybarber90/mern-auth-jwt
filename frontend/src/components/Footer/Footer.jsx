@@ -18,24 +18,24 @@ const Footer = () => {
           <div className="footer-links">
             <div className="left-footer-links">
               <p>
-                <Link to="/profile" className="footer-link">
-                  Naši proizvodi
+                <Link to="/" className="footer-link">
+                  Početna
                 </Link>
               </p>
               <p>
-                <Link to="/client-adds" className="footer-link">
-                  Naše usluge
+                <Link to="/proizvodi" className="footer-link">
+                  Naši proizvodi
                 </Link>
               </p>
             </div>
             <div className="right-footer-links">
               <p>
-                <Link to="/client-adds" className="footer-link">
+                <Link to="/cenovnik" className="footer-link">
                   Cenovnik
                 </Link>
               </p>
               <p>
-                <Link to="/client-adds" className="footer-link">
+                <Link to="/kontakt" className="footer-link">
                   Kontakt
                 </Link>
               </p>
@@ -48,7 +48,7 @@ const Footer = () => {
             Naša misija je da pružimo najbolje digitalne reklame za vaše
             poslovanje.
           </p>
-          <p>Adresa: Ulica Primjera 1, Beograd, Srbija</p>
+          <p>Adresa: Kralja Petra I, Beograd, Srbija</p>
         </div>
       </div>
       <div className="footer-bottom">

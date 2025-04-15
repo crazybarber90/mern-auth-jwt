@@ -22,14 +22,24 @@ import ClientDetails from './screens/AllClients/ClientDetails/ClientDetails.jsx'
 import NotFoundPage from './screens/NotFoundPage/NotFoundPage.jsx'
 import ImagePreviewPage from './screens/ImagePreviewPage/ImagePreviewPage.jsx'
 import BilbordPage from './screens/BilbordPage/BilbordPage.jsx'
+import Contacts from './screens/Contacts/Contacts.jsx'
+import Products from './screens/Products/Products.jsx'
+import Pricing from './screens/Pricing/Pricing.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
+      {/* MENU */}
       <Route index={true} path="/" element={<HomeScreen />} />
+      <Route path="/proizvodi" element={<Products />} />
+      <Route path="/cenovnik" element={<Pricing />} />
+      <Route path="/kontakt" element={<Contacts />} />
+
+      {/* AUTH */}
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
+
       <Route path="/client-adds" element={<ClientAdds />} />
       <Route path="/image/:id" element={<ImagePreviewPage />} />
 
