@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { FiPlus } from 'react-icons/fi'
+// import { FiPlus } from 'react-icons/fi'
 import './clientAddsStyle.css'
 import {
   uploadBilbordApi,
@@ -13,7 +13,6 @@ import { GrEdit } from 'react-icons/gr'
 
 const ClientAdds = () => {
   const [bilbords, setBilbords] = useState([]) // Držimo sve bilborde
-  const [imagesByBilbord, setImagesByBilbord] = useState({}) // Pratimo slike za svaki bilbord
   const [uploading, setUploading] = useState(false) // Status dodavanja slike
   const fileInputRef = useRef(null) // Ref za input element
   const editNameRefs = useRef({})
@@ -22,7 +21,9 @@ const ClientAdds = () => {
   const [pages, setPages] = useState(1) // Ukupan broj stranica
   const [editNameById, setEditNameById] = useState({})
   const [newNameById, setNewNameById] = useState({})
-
+  const [imagesByBilbord, setImagesByBilbord] = useState({}) // Pratimo slike za svaki bilbord
+  const [mediaByBilbord, setMediaByBilbord] = useState({}) // image | video | slider
+  const [activePreview, setActivePreview] = useState({})
   // Preuzimanje bilborda za korisnika sa userId
   const getBilbords = async () => {
     try {
@@ -48,17 +49,6 @@ const ClientAdds = () => {
   useEffect(() => {
     getBilbords(page)
   }, [page])
-
-  // Obrada izabrane slike za specifičan bilbord
-  const handleImageUpload = (event, bilbordId) => {
-    const file = event.target.files[0]
-    if (file) {
-      setImagesByBilbord((prev) => ({
-        ...prev,
-        [bilbordId]: URL.createObjectURL(file),
-      }))
-    }
-  }
 
   // Aktiviranje file input-a
   const triggerFileInput = (bilbordId) => {
@@ -145,6 +135,30 @@ const ClientAdds = () => {
     }
   }, [])
 
+  console.log('ACTIVE PREVIEW', activePreview)
+
+  const handleMediaUpload = (event, bilbordId) => {
+    const file = event.target.files[0]
+    if (file) {
+      const previewType = activePreview[bilbordId]
+      if (previewType === 'video') {
+        console.log('pamti mediju')
+        setMediaByBilbord((prev) => ({
+          ...prev,
+          [bilbordId]: URL.createObjectURL(file),
+        }))
+      } else if (previewType === 'slika') {
+        console.log('pamti sliku')
+        setImagesByBilbord((prev) => ({
+          ...prev,
+          [bilbordId]: URL.createObjectURL(file),
+        }))
+      } else {
+        console.log('treba ovde slajder')
+      }
+    }
+  }
+
   return (
     <div className="clientAddWrapper">
       {/* Povratak na prethodnu stranicu */}
@@ -213,37 +227,118 @@ const ClientAdds = () => {
               Preporučena dimenzija slike: <strong>1920x1080</strong> (16:9
               format).
             </p>
+
             <div className="uploadSection">
-              <p
-                className="uploadButton"
-                onClick={() => triggerFileInput(bilbord._id)}
-              >
-                <FiPlus size={24} />
-                <span>Dodaj sliku</span>
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={(event) =>
-                  handleImageUpload(
-                    event,
-                    fileInputRef.current.dataset.bilbordId
-                  )
-                }
-              />
+              <div className="uploadSection">
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    gap: '12px',
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      setActivePreview((prev) => ({
+                        ...prev,
+                        [bilbord._id]: 'slika',
+                      }))
+                      triggerFileInput(bilbord._id)
+                    }}
+                    style={{
+                      padding: '5px 15px',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      border: 'none',
+                      backgroundColor: '#25910b',
+                      color: 'white',
+                    }}
+                  >
+                    {/* <FiPlus size={20} /> */}
+                    Dodaj sliku
+                  </button>
+                  <button
+                    style={{
+                      padding: '5px 15px',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      border: 'none',
+                      backgroundColor: '#6b78be',
+                      color: 'white',
+                    }}
+                    onClick={() =>
+                      setActivePreview((prev) => ({
+                        ...prev,
+                        [bilbord._id]: 'slider',
+                      }))
+                    }
+                  >
+                    Dodaj slajder
+                  </button>
+                  <button
+                    style={{
+                      padding: '5px 15px',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      border: 'none',
+                      backgroundColor: '#e05050',
+                      color: 'white',
+                    }}
+                    // onClick={() =>
+                    //   setActivePreview((prev) => ({
+                    //     ...prev,
+                    //     [bilbord._id]: 'video',
+                    //   }))
+                    // }
+                    onClick={() => {
+                      setActivePreview((prev) => ({
+                        ...prev,
+                        [bilbord._id]: 'video',
+                      }))
+                      triggerFileInput(bilbord._id)
+                    }}
+                  >
+                    Dodaj video
+                  </button>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  style={{ display: 'none' }}
+                  onChange={(event) =>
+                    handleMediaUpload(
+                      event,
+                      fileInputRef.current.dataset.bilbordId
+                    )
+                  }
+                />
+              </div>
             </div>
+
             <div className="imagePreview">
-              <img
-                src={
-                  imagesByBilbord[bilbord._id] ||
-                  bilbord.imageUrl ||
-                  '/public/images/defaultImage.png'
-                }
-                alt="Bilbord"
-                className="previewImage"
-              />
+              <h4 style={{ textTransform: 'capitalize' }}>
+                {activePreview[bilbord._id] || 'Slika'}
+              </h4>
+              {activePreview[bilbord._id] === 'video' ? (
+                <video
+                  src={mediaByBilbord[bilbord._id] || bilbord.videoUrl}
+                  controls
+                  className="previewImage"
+                />
+              ) : (
+                <img
+                  src={
+                    imagesByBilbord[bilbord._id] ||
+                    bilbord.imageUrl ||
+                    '/public/images/defaultImage.png'
+                  }
+                  alt="Bilbord"
+                  className="previewImage"
+                />
+              )}
             </div>
             <p
               onClick={() => handleSaveChanges(bilbord._id)}

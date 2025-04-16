@@ -11,9 +11,14 @@ const { Types } = mongoose
 
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
-    console.log(req)
+    console.log('STA JE OVDE REQUEST', req)
     try {
-      const user = await User.findById(req.user._id)
+      const bilbord = await ClientBilbord.findById(req.params.id)
+      if (!bilbord) {
+        return cb(new Error('Bilbord not found'), false)
+      }
+
+      const user = await User.findById(bilbord.userId)
       if (!user) {
         return cb(new Error('User not found'), false)
       }
@@ -81,6 +86,13 @@ const uploadBilbordImage = asyncHandler(async (req, res) => {
     throw new Error('Bilbord not found')
   }
 
+  // Pronalazi korisnika kome pripada bilbord
+  const user = await User.findById(bilbord.userId)
+  if (!user) {
+    res.status(404)
+    throw new Error('User not found')
+  }
+
   // Ako već postoji stara slika, obriše je
   if (bilbord.imageUrl) {
     // Kreiranje pune putanje do stare slike (skini vodeći "/")
@@ -102,7 +114,8 @@ const uploadBilbordImage = asyncHandler(async (req, res) => {
   }
 
   // Kreiranje URL-a za novu sliku
-  const imageUrl = `/uploads/${req.user.name}/${id}/${req.file.filename}`
+  // const imageUrl = `/uploads/${req.user.name}/${id}/${req.file.filename}`
+  const imageUrl = `/uploads/${user.name}/${id}/${req.file.filename}`
 
   // Ažurira bilbord sa novim URL-om slike
   bilbord.imageUrl = imageUrl
@@ -127,11 +140,10 @@ const getBilbordsByUserId = asyncHandler(async (req, res) => {
   // Preuzimanje bilborda sa paginacijom
   const bilbords = await ClientBilbord.find({ userId }).skip(skip).limit(limit)
 
-  console.log('BILBORDIIIII', bilbords)
-  if (!bilbords || bilbords.length === 0) {
-    res.status(404)
-    throw new Error('Bilbords not found for this user')
-  }
+  // if (!bilbords || bilbords.length === 0) {
+  //   res.status(404)
+  //   throw new Error('Bilbords not found for this user')
+  // }
 
   // Ukupan broj bilborda za korisnika
   const totalBilbords = await ClientBilbord.countDocuments({ userId })
@@ -206,18 +218,43 @@ const createBilbordForUser = asyncHandler(async (req, res) => {
 })
 
 // Admin Briše bilbord za određenog korisnika
-
 const deleteBilbordOfUser = asyncHandler(async (req, res) => {
   const { bilbord_id } = req.params
 
-  const bilbord = await ClientBilbord.findByIdAndDelete(bilbord_id)
+  // Prvo nalazi bilbord ali bez brisanja, da bi izvukao userId i imageUrl
+  const bilbord = await ClientBilbord.findById(bilbord_id)
 
-  if (bilbord) {
-    res.status(200).json({ message: 'Bilbord uspešno obrisan', bilbord })
-  } else {
+  if (!bilbord) {
     res.status(404)
     throw new Error('Bilbord nije pronađen')
   }
+
+  // Trazi korisnika
+  const user = await User.findById(bilbord.userId)
+  if (!user) {
+    res.status(404)
+    throw new Error('Korisnik nije pronađen')
+  }
+
+  // Formira path do foldera koji treba obrisati
+  const folderPath = path.join('uploads', user.name, bilbord_id)
+
+  // Briše folder iz uploads
+  fs.rm(folderPath, { recursive: true, force: true }, (err) => {
+    if (err) {
+      console.error('Greška prilikom brisanja foldera:', err)
+    } else {
+      console.log('Folder uspešno obrisan:', folderPath)
+    }
+  })
+
+  // Sad briše bilbord iz baze
+  const deletedBilbord = await ClientBilbord.findByIdAndDelete(bilbord_id)
+
+  res.status(200).json({
+    message: 'Bilbord i folder uspešno obrisani',
+    bilbord: deletedBilbord,
+  })
 })
 
 const clientUpdateBilbordName = asyncHandler(async (req, res) => {

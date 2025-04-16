@@ -26,6 +26,9 @@ export const uploadBilbordApi = (id, formData) => {
   // for (let pair of formData.entries()) {
   //   console.log(`FormData content: ${pair[0]} = ${pair[1]}`)
   // }
+
+  console.log('USER ID za create bilbord', id)
+  console.log('formData create bilbord', formData)
   return api
     .post(`/bilbord/${id}`, formData, {
       headers: {

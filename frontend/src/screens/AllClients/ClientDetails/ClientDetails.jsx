@@ -127,7 +127,9 @@ const ClientDetails = () => {
   const handleAdminDeleteBilbord = async (bilbordId) => {
     try {
       const deletedBilbord = await adminDeleteBilbordOfUserApi(bilbordId)
+      console.log('DELETED BILBORD', deletedBilbord)
       if (deletedBilbord) {
+        console.log('USAO U IF')
         toast.success('Bilbord uspešno obrisan.')
         setShowModal(false)
         // Ponovo učitaj podatke sa servera
@@ -146,8 +148,6 @@ const ClientDetails = () => {
     }
     // eslint-disable-next-line
   }, [page, userInfo])
-
-  console.log('SHOW MODAL', showModal)
 
   return (
     <div className="clientAddWrapper">
@@ -171,7 +171,7 @@ const ClientDetails = () => {
                 onCancel={() => setShowModal(false)}
               />
             )}
-            {console.log('BILBORD', bilbord)}
+
             {/* ADMIN DELETE BILBORD */}
             <span
               className="bilbordDeleteBtn"

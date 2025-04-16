@@ -24,8 +24,6 @@ const BilbordPage = () => {
     fetchBilbord()
   }, [userId, bilbordId])
 
-  console.log('BILBORD:', bilbord)
-
   if (loading) return <div>Učitavanje...</div>
   if (error) return <div>Greška: {error}</div>
 

@@ -13,6 +13,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -30,12 +31,14 @@ const LoginScreen = () => {
     setIsLoading(true)
     try {
       const res = await loginUserApi({ email, password })
-
-      console.log('RESPIOSE ZA LOGIN', res)
       dispatch(setCredentials({ ...res }))
+      setError('')
       navigate('/')
+      toast.success('Dobrodošli')
     } catch (err) {
-      toast.error(err?.data?.message || err.error)
+      // toast.error(err?.data?.message || err.error)
+      toast.error(err?.response?.data?.message || 'Došlo je do greške')
+      setError(err?.response?.data?.message)
     } finally {
       setIsLoading(false)
     }
@@ -81,6 +84,7 @@ const LoginScreen = () => {
         <button type="submit" className="btnPrimary" disabled={isLoading}>
           Uloguj se
         </button>
+        <p style={{ color: 'red' }}>{error}</p>
       </form>
 
       {isLoading && <Loader />}

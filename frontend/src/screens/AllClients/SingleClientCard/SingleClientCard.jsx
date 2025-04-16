@@ -1,7 +1,6 @@
 import './singleClientCard.css'
 
 const SingleClientCard = ({ client }) => {
-  console.log('CLIENT', client)
   return (
     <div className="singleClientCardWrapper">
       <h1>{client.name}</h1>
