@@ -5,6 +5,7 @@ import {
   uploadBilbordApi,
   getClientBilbordsApi,
   clientUpdateBilbordNameApi,
+  uploadBilbordVideoApi,
 } from '../../apiCalls/apiCalls'
 import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
@@ -24,6 +25,7 @@ const ClientAdds = () => {
   const [imagesByBilbord, setImagesByBilbord] = useState({}) // Pratimo slike za svaki bilbord
   const [mediaByBilbord, setMediaByBilbord] = useState({}) // image | video | slider
   const [activePreview, setActivePreview] = useState({})
+
   // Preuzimanje bilborda za korisnika sa userId
   const getBilbords = async () => {
     try {
@@ -32,6 +34,17 @@ const ClientAdds = () => {
       if (fetchAllBilbords) {
         setBilbords(fetchAllBilbords)
         setPages(totalPages)
+
+        // setovanje inicijalnog bilborda klijenta iz response sa backenda
+        const initialPreview = {}
+        fetchAllBilbords.forEach((b) => {
+          if (b.mediaType === 'video') {
+            initialPreview[b._id] = 'video'
+          } else {
+            initialPreview[b._id] = 'slika'
+          }
+        })
+        setActivePreview(initialPreview)
       }
     } catch (error) {
       console.error('Greška prilikom preuzimanja bilborda:', error)
@@ -56,23 +69,30 @@ const ClientAdds = () => {
     fileInputRef.current.click()
   }
 
-  // Funkcija za upload slike
+  // Uploadovanje slike/videa bilborda
   const handleSaveChanges = async (bilbordId) => {
-    if (!imagesByBilbord[bilbordId]) {
-      toast.error('Nema izabrane slike.')
+    const file = fileInputRef.current.files[0]
+    const formData = new FormData()
+    const previewType = activePreview[bilbordId]
+
+    if (!file) {
+      toast.error('Nema fajla za upload.')
       return
     }
 
     setUploading(true)
-
-    const file = fileInputRef.current.files[0]
-    const formData = new FormData()
-    formData.append('image', file)
+    formData.append(previewType === 'video' ? 'video' : 'image', file)
 
     try {
-      await uploadBilbordApi(bilbordId, formData)
-      toast.success('Slika uspešno sačuvana!')
-      getBilbords() // Revalidiranje bilborda nakon uspešnog upload-a
+      if (previewType === 'video') {
+        await uploadBilbordVideoApi(bilbordId, formData)
+        toast.success('Video uspešno sačuvan!')
+      } else {
+        await uploadBilbordApi(bilbordId, formData)
+        toast.success('Slika uspešno sačuvana!')
+      }
+
+      getBilbords()
 
       setImagesByBilbord((prev) => {
         const updated = { ...prev }
@@ -80,8 +100,11 @@ const ClientAdds = () => {
         return updated
       })
     } catch (error) {
-      console.error('Greška prilikom upload-a slike:', error)
-      toast.error('Greška prilikom upload-a slike.')
+      toast.error(
+        `Greška prilikom upload-a ${
+          previewType === 'video' ? 'videa' : 'slike'
+        }.`
+      )
     } finally {
       setUploading(false)
     }
@@ -134,8 +157,6 @@ const ClientAdds = () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
-
-  console.log('ACTIVE PREVIEW', activePreview)
 
   const handleMediaUpload = (event, bilbordId) => {
     const file = event.target.files[0]
@@ -286,12 +307,6 @@ const ClientAdds = () => {
                       backgroundColor: '#e05050',
                       color: 'white',
                     }}
-                    // onClick={() =>
-                    //   setActivePreview((prev) => ({
-                    //     ...prev,
-                    //     [bilbord._id]: 'video',
-                    //   }))
-                    // }
                     onClick={() => {
                       setActivePreview((prev) => ({
                         ...prev,

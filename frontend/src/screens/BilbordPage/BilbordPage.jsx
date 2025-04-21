@@ -27,26 +27,42 @@ const BilbordPage = () => {
   if (loading) return <div>Učitavanje...</div>
   if (error) return <div>Greška: {error}</div>
 
+  console.log('BILBORD', bilbord)
+
   return (
     <div
       style={{
         width: '100%',
-        // height: '100vh',
         backgroundColor: 'black',
         padding: '5px 0',
         display: 'flex',
       }}
     >
-      <img
-        src={bilbord.imageUrl}
-        alt="Bilbord"
-        style={{
-          margin: '0 auto',
-          maxWidth: '99.7%',
-          minHeight: '100vh',
-          objectFit: 'contain',
-        }}
-      />
+      {bilbord.mediaType === 'video' ? (
+        <video
+          src={bilbord.videoUrl}
+          autoPlay
+          muted
+          loop
+          style={{
+            margin: '0 auto',
+            maxWidth: '99.7%',
+            minHeight: '100vh',
+            objectFit: 'contain',
+          }}
+        />
+      ) : (
+        <img
+          src={bilbord.imageUrl}
+          alt="Bilbord"
+          style={{
+            margin: '0 auto',
+            maxWidth: '99.7%',
+            minHeight: '100vh',
+            objectFit: 'contain',
+          }}
+        />
+      )}
     </div>
   )
 }

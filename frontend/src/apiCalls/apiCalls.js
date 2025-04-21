@@ -23,14 +23,21 @@ export const updateUserApi = (data) => {
 
 // Funkcija za upload slika za bilbord
 export const uploadBilbordApi = (id, formData) => {
-  // for (let pair of formData.entries()) {
-  //   console.log(`FormData content: ${pair[0]} = ${pair[1]}`)
-  // }
+  return api
+    .post(`/bilbord/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then((response) => response.data)
+}
 
+// Funkcija za upload videa za bilbord
+export const uploadBilbordVideoApi = async (id, formData) => {
   console.log('USER ID za create bilbord', id)
   console.log('formData create bilbord', formData)
   return api
-    .post(`/bilbord/${id}`, formData, {
+    .post(`/bilbord/video/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

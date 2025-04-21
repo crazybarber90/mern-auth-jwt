@@ -11,7 +11,6 @@ const { Types } = mongoose
 
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
-    console.log('STA JE OVDE REQUEST', req)
     try {
       const bilbord = await ClientBilbord.findById(req.params.id)
       if (!bilbord) {
@@ -61,9 +60,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 // @desc    Upload image for a bilbord
-// @route   POST /api/bilbord/upload/:bilbordId
+// @route   POST /api/bilbord/:bilbordId
 // @access  Private
-// Funkcija za upload slike
+// Funkcija za upload slike bilborda
 const uploadBilbordImage = asyncHandler(async (req, res) => {
   const { id } = req.params
 
@@ -93,25 +92,25 @@ const uploadBilbordImage = asyncHandler(async (req, res) => {
     throw new Error('User not found')
   }
 
-  // Ako već postoji stara slika, obriše je
-  if (bilbord.imageUrl) {
-    // Kreiranje pune putanje do stare slike (skini vodeći "/")
-    const oldImagePath = bilbord.imageUrl.replace(/^\//, '')
+  // Briše postojeći image ili video fajl ako postoji
 
-    fs.access(oldImagePath, fs.constants.F_OK, (err) => {
-      if (err) {
-        console.log('Stara slika ne postoji:', oldImagePath)
-      } else {
-        fs.unlink(oldImagePath, (err) => {
-          if (err) {
-            console.error('Greška prilikom brisanja stare slike:', err)
-          } else {
-            console.log('Stara slika uspešno obrisana.')
-          }
-        })
-      }
-    })
-  }
+  const previousFiles = [bilbord.imageUrl, bilbord.videoUrl]
+  previousFiles.forEach((fileUrl) => {
+    if (fileUrl) {
+      const oldFilePath = fileUrl.replace(/^\//, '')
+      fs.access(oldFilePath, fs.constants.F_OK, (err) => {
+        if (!err) {
+          fs.unlink(oldFilePath, (err) => {
+            if (err) {
+              console.error('Greška prilikom brisanja fajla:', err)
+            } else {
+              console.log('Stari fajl uspešno obrisan:', oldFilePath)
+            }
+          })
+        }
+      })
+    }
+  })
 
   // Kreiranje URL-a za novu sliku
   // const imageUrl = `/uploads/${req.user.name}/${id}/${req.file.filename}`
@@ -119,12 +118,78 @@ const uploadBilbordImage = asyncHandler(async (req, res) => {
 
   // Ažurira bilbord sa novim URL-om slike
   bilbord.imageUrl = imageUrl
+  bilbord.videoUrl = ''
+  bilbord.mediaType = 'image'
+
   await bilbord.save()
 
   // Slanje odgovora sa URL-om slike (punim URL-om)
   res.json({
     message: 'Slika uspešno uploadovana',
     imageUrl: `${req.protocol}://${req.get('host')}${imageUrl}`, // Vraća pun URL
+  })
+})
+
+// @desc    Upload video for a bilbord
+// @route   POST /api/bilbord/video/:bilbordId
+// @access  Private
+// Funkcija za upload Videa bilborda
+const uploadBilbordVideo = asyncHandler(async (req, res) => {
+  const { id } = req.params
+
+  if (!Types.ObjectId.isValid(id)) {
+    res.status(400)
+    throw new Error('Invalid bilbord ID')
+  }
+
+  if (!req.file) {
+    res.status(400)
+    throw new Error('No video uploaded')
+  }
+
+  const bilbord = await ClientBilbord.findById(id)
+  if (!bilbord) {
+    res.status(404)
+    throw new Error('Bilbord not found')
+  }
+
+  const user = await User.findById(bilbord.userId)
+  if (!user) {
+    res.status(404)
+    throw new Error('User not found')
+  }
+
+  // Briše postojeći image ili video fajl ako postoji
+  const previousFiles = [bilbord.imageUrl, bilbord.videoUrl]
+  previousFiles.forEach((fileUrl) => {
+    if (fileUrl) {
+      const oldFilePath = fileUrl.replace(/^\//, '')
+      fs.access(oldFilePath, fs.constants.F_OK, (err) => {
+        if (!err) {
+          fs.unlink(oldFilePath, (err) => {
+            if (err) {
+              console.error('Greška prilikom brisanja fajla:', err)
+            } else {
+              console.log('Stari fajl uspešno obrisan:', oldFilePath)
+            }
+          })
+        }
+      })
+    }
+  })
+
+  // Novi video URL
+  const videoUrl = `/uploads/${user.name}/${id}/${req.file.filename}`
+  bilbord.videoUrl = videoUrl
+  bilbord.imageUrl = ''
+  bilbord.mediaType = 'video'
+
+  await bilbord.save()
+
+  // Slanje odgovora sa URL-om videa (punim URL-om)
+  res.json({
+    message: 'Video uspešno uploadovan',
+    videoUrl: `${req.protocol}://${req.get('host')}${videoUrl}`,
   })
 })
 
@@ -140,20 +205,23 @@ const getBilbordsByUserId = asyncHandler(async (req, res) => {
   // Preuzimanje bilborda sa paginacijom
   const bilbords = await ClientBilbord.find({ userId }).skip(skip).limit(limit)
 
-  // if (!bilbords || bilbords.length === 0) {
-  //   res.status(404)
-  //   throw new Error('Bilbords not found for this user')
-  // }
-
   // Ukupan broj bilborda za korisnika
   const totalBilbords = await ClientBilbord.countDocuments({ userId })
 
   // Dodavanje punog URL-a za imageUrl svakom bilbordu
   const bilbordsWithFullUrls = bilbords.map((bilbord) => {
-    const fullImageUrl = `${req.protocol}://${req.get('host')}${
-      bilbord.imageUrl
-    }`
-    return { ...bilbord.toObject(), imageUrl: fullImageUrl } // Vraćamo objekt sa punim URL-om
+    const fullImageUrl = bilbord.imageUrl
+      ? `${req.protocol}://${req.get('host')}${bilbord.imageUrl}`
+      : ''
+    const fullVideoUrl = bilbord.videoUrl
+      ? `${req.protocol}://${req.get('host')}${bilbord.videoUrl}`
+      : ''
+
+    return {
+      ...bilbord.toObject(),
+      imageUrl: bilbord.mediaType === 'image' ? fullImageUrl : '',
+      videoUrl: bilbord.mediaType === 'video' ? fullVideoUrl : '',
+    }
   })
 
   // Vraćanje paginiranih rezultata
@@ -169,7 +237,6 @@ const getBilbordsByUserId = asyncHandler(async (req, res) => {
 // @route   GET /api/bilbords/:userId/:bilbordId
 // @access  Public
 // Ruta za preuzimanje bilborda po userId i bilbordId direktno za klijentov ekran
-
 const getBilbordByUserAndBilbordId = asyncHandler(async (req, res) => {
   const { userId, bilbordId } = req.params
 
@@ -190,12 +257,19 @@ const getBilbordByUserAndBilbordId = asyncHandler(async (req, res) => {
     throw new Error('Bilbord not found')
   }
 
-  // Dodaj pun URL za imageUrl
-  const fullImageUrl = `${req.protocol}://${req.get('host')}${bilbord.imageUrl}`
-  const bilbordWithFullUrl = { ...bilbord.toObject(), imageUrl: fullImageUrl }
-
+  // Kreiranje punog url-a za preview slike i videa gotovog bilborda
+  const host = `${req.protocol}://${req.get('host')}`
+  const bilbordWithFullUrls = {
+    ...bilbord.toObject(),
+    imageUrl: bilbord.imageUrl?.startsWith('http')
+      ? bilbord.imageUrl
+      : `${host}${bilbord.imageUrl || ''}`,
+    videoUrl: bilbord.videoUrl?.startsWith('http')
+      ? bilbord.videoUrl
+      : `${host}${bilbord.videoUrl || ''}`,
+  }
   // Vrati bilbord sa punim URL-om
-  res.status(200).json(bilbordWithFullUrl)
+  res.status(200).json(bilbordWithFullUrls)
 })
 
 // Admin Kreira novi bilbord za određenog korisnika
@@ -276,6 +350,7 @@ const clientUpdateBilbordName = asyncHandler(async (req, res) => {
 export {
   upload,
   uploadBilbordImage,
+  uploadBilbordVideo,
   getBilbordsByUserId,
   getBilbordByUserAndBilbordId,
   createBilbordForUser,

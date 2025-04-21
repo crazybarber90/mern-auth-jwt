@@ -6,11 +6,12 @@ import {
   adminCreateBilbordForUserApi,
   adminDeleteBilbordOfUserApi, // API za dodavanje novog bilborda za korisnika
   getAllClientsBilbordsApi, // API za dohvatanje svih bilborda klijenta
-  uploadBilbordApi, // API za upload slike za bilbord
+  uploadBilbordApi,
+  uploadBilbordVideoApi, // API za upload slike za bilbord
 } from '../../../apiCalls/apiCalls'
 import { useSelector } from 'react-redux' // Hook za uzimanje podataka iz Redux-a
 import { toast } from 'react-toastify' // Prikaz notifikacija korisniku
-import { FiPlus } from 'react-icons/fi' // Ikonica za "dodavanje"
+// import { FiPlus } from 'react-icons/fi' // Ikonica za "dodavanje"
 import Back from '../../../components/BackIcon/Back' // Komponenta za povratak unazad
 import { CiSquarePlus } from 'react-icons/ci' // Ikonica za "dodavanje novog bilborda"
 import ConfirmModal from '../../../components/ConfirmModal/ConfirmModal'
@@ -30,6 +31,8 @@ const ClientDetails = () => {
   const [imagesByBilbord, setImagesByBilbord] = useState({}) // Privremene slike za bilborde
   const fileInputRef = useRef(null) // Referenca na skriveni file input
   const [showModal, setShowModal] = useState(false) // modal za potvrdu brisanja bilborda (ADMIN)
+  const [activePreview, setActivePreview] = useState({})
+  const [mediaByBilbord, setMediaByBilbord] = useState({}) // image | video | slider
 
   // Funkcija za dohvatanje svih bilborda klijenta
   const fetchClientsBilbords = async (page) => {
@@ -44,23 +47,25 @@ const ClientDetails = () => {
             userId: id, // Prosleđujemo ID klijenta
             page, // Trenutna stranica
           })
-        setClientBilbords(fetchAllBilbords) // Postavi dobijene bilborde u state
-        setPages(totalPages) // Postavi ukupan broj stranica
+
+        if (fetchAllBilbords) {
+          setClientBilbords(fetchAllBilbords) // Postavi dobijene bilborde u state
+          setPages(totalPages) // Postavi ukupan broj stranica
+
+          // Auto-setuj preview tip na osnovu mediaType
+          const initialPreview = {}
+          fetchAllBilbords.forEach((b) => {
+            if (b.mediaType === 'video') {
+              initialPreview[b._id] = 'video'
+            } else {
+              initialPreview[b._id] = 'slika'
+            }
+          })
+          setActivePreview(initialPreview)
+        }
       }
     } catch (error) {
       console.error(error) // Ispis greške u konzolu
-    }
-  }
-
-  // Funkcija za rukovanje odabirom slike
-  const handleImageUpload = (event, bilbordId) => {
-    const file = event.target.files[0] // Dohvati izabranu datoteku
-    if (file) {
-      // Čuvamo privremenu URL sliku za prikaz
-      setImagesByBilbord((prev) => ({
-        ...prev,
-        [bilbordId]: URL.createObjectURL(file),
-      }))
     }
   }
 
@@ -70,34 +75,47 @@ const ClientDetails = () => {
     fileInputRef.current.click() // Simulira klik na file input
   }
 
-  // Funkcija za upload izabrane slike
   const handleSaveChanges = async (bilbordId) => {
-    if (!imagesByBilbord[bilbordId]) {
-      toast.error('Nema izabrane slike.') // Ako slika nije izabrana, obavesti korisnika
+    console.log('OKIDA HANDLCHANGE')
+    const file = fileInputRef.current.files[0]
+    const formData = new FormData()
+    const previewType = activePreview[bilbordId]
+
+    if (!file) {
+      console.log('NEMA FAJLA')
+      toast.error('Nema fajla za upload.')
       return
     }
 
-    setUploading(true) // Podesi status "uploading" na true
-    const file = fileInputRef.current.files[0] // Dohvati izabranu datoteku
-    const formData = new FormData()
-    formData.append('image', file) // Dodaj sliku u formu
+    setUploading(true)
+    formData.append(previewType === 'video' ? 'video' : 'image', file)
 
     try {
-      await uploadBilbordApi(bilbordId, formData) // Pošalji API zahtev za upload
-      toast.success('Slika uspešno sačuvana!') // Obavesti korisnika o uspehu
+      if (previewType === 'video') {
+        console.log('UPLOADUJE VIDEO IZ ClientAdds')
+        await uploadBilbordVideoApi(bilbordId, formData)
+        toast.success('Video uspešno sačuvan!')
+      } else {
+        console.log('UPLOADUJE SLIKU IZ ClientAdds')
+        await uploadBilbordApi(bilbordId, formData)
+        toast.success('Slika uspešno sačuvana!')
+      }
+
       fetchClientsBilbords() // Osveži listu bilborda
 
-      // Ukloni sliku iz privremenog state-a
       setImagesByBilbord((prev) => {
         const updated = { ...prev }
         delete updated[bilbordId]
         return updated
       })
     } catch (error) {
-      console.error('Greška prilikom upload-a slike:', error) // Ispis greške
-      toast.error('Greška prilikom upload-a slike.') // Prikaz greške korisniku
+      toast.error(
+        `Greška prilikom upload-a ${
+          previewType === 'video' ? 'videa' : 'slike'
+        }.`
+      )
     } finally {
-      setUploading(false) // Resetuj status "uploading"
+      setUploading(false)
     }
   }
 
@@ -138,6 +156,28 @@ const ClientDetails = () => {
     } catch (error) {
       console.error('error', error)
       toast.error('Greška prilikom brisanja bilborda.')
+    }
+  }
+
+  const handleMediaUpload = (event, bilbordId) => {
+    const file = event.target.files[0]
+    if (file) {
+      const previewType = activePreview[bilbordId]
+      if (previewType === 'video') {
+        console.log('pamti mediju')
+        setMediaByBilbord((prev) => ({
+          ...prev,
+          [bilbordId]: URL.createObjectURL(file),
+        }))
+      } else if (previewType === 'slika') {
+        console.log('pamti sliku')
+        setImagesByBilbord((prev) => ({
+          ...prev,
+          [bilbordId]: URL.createObjectURL(file),
+        }))
+      } else {
+        console.log('treba ovde slajder')
+      }
     }
   }
 
@@ -186,36 +226,109 @@ const ClientDetails = () => {
               format).
             </p>
             <div className="uploadSection">
-              <p
-                className="uploadButton"
-                onClick={() => triggerFileInput(bilbord._id)}
-              >
-                <FiPlus size={24} />
-                <span>Dodaj sliku</span>
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={(event) =>
-                  handleImageUpload(
-                    event,
-                    fileInputRef.current.dataset.bilbordId
-                  )
-                }
-              />
+              <div className="uploadSection">
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    gap: '12px',
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      setActivePreview((prev) => ({
+                        ...prev,
+                        [bilbord._id]: 'slika',
+                      }))
+                      triggerFileInput(bilbord._id)
+                    }}
+                    style={{
+                      padding: '5px 15px',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      border: 'none',
+                      backgroundColor: '#25910b',
+                      color: 'white',
+                    }}
+                  >
+                    {/* <FiPlus size={20} /> */}
+                    Dodaj sliku
+                  </button>
+                  <button
+                    style={{
+                      padding: '5px 15px',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      border: 'none',
+                      backgroundColor: '#6b78be',
+                      color: 'white',
+                    }}
+                    onClick={() =>
+                      setActivePreview((prev) => ({
+                        ...prev,
+                        [bilbord._id]: 'slider',
+                      }))
+                    }
+                  >
+                    Dodaj slajder
+                  </button>
+                  <button
+                    style={{
+                      padding: '5px 15px',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      border: 'none',
+                      backgroundColor: '#e05050',
+                      color: 'white',
+                    }}
+                    onClick={() => {
+                      setActivePreview((prev) => ({
+                        ...prev,
+                        [bilbord._id]: 'video',
+                      }))
+                      triggerFileInput(bilbord._id)
+                    }}
+                  >
+                    Dodaj video
+                  </button>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  style={{ display: 'none' }}
+                  onChange={(event) =>
+                    handleMediaUpload(
+                      event,
+                      fileInputRef.current.dataset.bilbordId
+                    )
+                  }
+                />
+              </div>
             </div>
             <div className="imagePreview">
-              <img
-                src={
-                  imagesByBilbord[bilbord._id] ||
-                  bilbord.imageUrl ||
-                  '/public/images/defaultImage.png'
-                }
-                alt="Bilbord"
-                className="previewImage"
-              />
+              <h4 style={{ textTransform: 'capitalize' }}>
+                {activePreview[bilbord._id] || 'Slika'}
+              </h4>
+              {activePreview[bilbord._id] === 'video' ? (
+                <video
+                  src={mediaByBilbord[bilbord._id] || bilbord.videoUrl}
+                  controls
+                  className="previewImage"
+                />
+              ) : (
+                <img
+                  src={
+                    imagesByBilbord[bilbord._id] ||
+                    bilbord.imageUrl ||
+                    '/public/images/defaultImage.png'
+                  }
+                  alt="Bilbord"
+                  className="previewImage"
+                />
+              )}
             </div>
             <p
               onClick={() => handleSaveChanges(bilbord._id)}

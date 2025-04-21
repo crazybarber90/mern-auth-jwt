@@ -23,6 +23,11 @@ const clientBilbordSchema = mongoose.Schema(
       type: String,
       default: '',
     },
+    mediaType: {
+      type: String,
+      default: 'image',
+    },
+    videoUrl: { type: String, default: '' },
     updatedAt: {
       type: Date,
       default: Date.now,
