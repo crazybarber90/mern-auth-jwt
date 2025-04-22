@@ -27,12 +27,16 @@ const ClientDetails = () => {
   const [clientBilbords, setClientBilbords] = useState([]) // Lista bilborda
   const [page, setPage] = useState(1) // Trenutna stranica
   const [pages, setPages] = useState(1) // Ukupan broj stranica
-  const [uploading, setUploading] = useState(false) // Status učitavanja slike
   const [imagesByBilbord, setImagesByBilbord] = useState({}) // Privremene slike za bilborde
   const fileInputRef = useRef(null) // Referenca na skriveni file input
   const [showModal, setShowModal] = useState(false) // modal za potvrdu brisanja bilborda (ADMIN)
   const [activePreview, setActivePreview] = useState({})
   const [mediaByBilbord, setMediaByBilbord] = useState({}) // image | video | slider
+
+  const [uploadingByBilbord, setUploadingByBilbord] = useState({})
+  const [progressByBilbord, setProgressByBilbord] = useState({})
+
+  const [hasChangesByBilbord, setHasChangesByBilbord] = useState({})
 
   // Funkcija za dohvatanje svih bilborda klijenta
   const fetchClientsBilbords = async (page) => {
@@ -76,28 +80,33 @@ const ClientDetails = () => {
   }
 
   const handleSaveChanges = async (bilbordId) => {
-    console.log('OKIDA HANDLCHANGE')
     const file = fileInputRef.current.files[0]
     const formData = new FormData()
     const previewType = activePreview[bilbordId]
 
     if (!file) {
-      console.log('NEMA FAJLA')
       toast.error('Nema fajla za upload.')
       return
     }
 
-    setUploading(true)
+    setUploadingByBilbord((prev) => ({ ...prev, [bilbordId]: true }))
+    setProgressByBilbord((prev) => ({ ...prev, [bilbordId]: 0 }))
     formData.append(previewType === 'video' ? 'video' : 'image', file)
+
+    // funkcija za racunanje progresa uploada
+    const onProgress = (event) => {
+      const percent = Math.round((event.loaded * 100) / event.total)
+      setProgressByBilbord((prev) => ({ ...prev, [bilbordId]: percent }))
+    }
 
     try {
       if (previewType === 'video') {
         console.log('UPLOADUJE VIDEO IZ ClientAdds')
-        await uploadBilbordVideoApi(bilbordId, formData)
+        await uploadBilbordVideoApi(bilbordId, formData, onProgress)
         toast.success('Video uspešno sačuvan!')
       } else {
         console.log('UPLOADUJE SLIKU IZ ClientAdds')
-        await uploadBilbordApi(bilbordId, formData)
+        await uploadBilbordApi(bilbordId, formData, onProgress)
         toast.success('Slika uspešno sačuvana!')
       }
 
@@ -115,7 +124,10 @@ const ClientDetails = () => {
         }.`
       )
     } finally {
-      setUploading(false)
+      setUploadingByBilbord((prev) => ({ ...prev, [bilbordId]: false }))
+      setProgressByBilbord((prev) => ({ ...prev, [bilbordId]: 0 }))
+      // za dugme da disabluje posle promene bilborda/slike
+      setHasChangesByBilbord((prev) => ({ ...prev, [bilbordId]: false }))
     }
   }
 
@@ -158,23 +170,32 @@ const ClientDetails = () => {
       toast.error('Greška prilikom brisanja bilborda.')
     }
   }
-
   const handleMediaUpload = (event, bilbordId) => {
     const file = event.target.files[0]
     if (file) {
       const previewType = activePreview[bilbordId]
+      const fileType = file.type
+
       if (previewType === 'video') {
-        console.log('pamti mediju')
+        if (!fileType.startsWith('video/')) {
+          toast.error('Na dugme "Dodaj video" možete dodati samo video fajl.')
+          return
+        }
         setMediaByBilbord((prev) => ({
           ...prev,
           [bilbordId]: URL.createObjectURL(file),
         }))
+        setHasChangesByBilbord((prev) => ({ ...prev, [bilbordId]: true }))
       } else if (previewType === 'slika') {
-        console.log('pamti sliku')
+        if (!fileType.startsWith('image/')) {
+          toast.error('Na dugme "Dodaj sliku" možete dodati samo sliku.')
+          return
+        }
         setImagesByBilbord((prev) => ({
           ...prev,
           [bilbordId]: URL.createObjectURL(file),
         }))
+        setHasChangesByBilbord((prev) => ({ ...prev, [bilbordId]: true }))
       } else {
         console.log('treba ovde slajder')
       }
@@ -189,6 +210,7 @@ const ClientDetails = () => {
     // eslint-disable-next-line
   }, [page, userInfo])
 
+  // admin panel
   return (
     <div className="clientAddWrapper">
       {/* Povratak na prethodnu stranicu */}
@@ -227,6 +249,7 @@ const ClientDetails = () => {
             </p>
             <div className="uploadSection">
               <div className="uploadSection">
+                {/* 3 dugmeta */}
                 <div
                   style={{
                     display: 'flex',
@@ -294,10 +317,17 @@ const ClientDetails = () => {
                     Dodaj video
                   </button>
                 </div>
+
+                {/* INPIUTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT */}
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*,video/*"
+                  accept={
+                    activePreview[fileInputRef.current?.dataset?.bilbordId] ===
+                    'video'
+                      ? 'video/*'
+                      : 'image/*'
+                  }
                   style={{ display: 'none' }}
                   onChange={(event) =>
                     handleMediaUpload(
@@ -308,6 +338,8 @@ const ClientDetails = () => {
                 />
               </div>
             </div>
+
+            {/* PREVIEW IMAGE / VIDEO */}
             <div className="imagePreview">
               <h4 style={{ textTransform: 'capitalize' }}>
                 {activePreview[bilbord._id] || 'Slika'}
@@ -330,13 +362,44 @@ const ClientDetails = () => {
                 />
               )}
             </div>
-            <p
+
+            {/* DUGME "SACUVAJ" */}
+            <button
               onClick={() => handleSaveChanges(bilbord._id)}
               className="submitUploadImage"
-              disabled={uploading}
+              disabled={
+                !hasChangesByBilbord[bilbord._id] ||
+                uploadingByBilbord[bilbord._id]
+              }
+              style={{
+                opacity:
+                  uploadingByBilbord[bilbord._id] ||
+                  !hasChangesByBilbord[bilbord._id]
+                    ? '50%'
+                    : '100%',
+                cursor:
+                  uploadingByBilbord[bilbord._id] ||
+                  !hasChangesByBilbord[bilbord._id]
+                    ? 'not-allowed'
+                    : 'pointer',
+              }}
             >
-              {uploading ? 'Dodavanje...' : 'Sačuvaj izmenu'}
-            </p>
+              {uploadingByBilbord[bilbord._id]
+                ? 'Dodavanje...'
+                : 'Sačuvaj izmenu'}
+            </button>
+
+            {/* PROGRESS BAR */}
+            {uploadingByBilbord[bilbord._id] && (
+              <div className="upload-progress-bar">
+                <progress
+                  value={progressByBilbord[bilbord._id] || 0}
+                  max="100"
+                />
+              </div>
+            )}
+
+            {/* LINK ZA HTTPS BILBORD */}
             <p
               style={{
                 width: '100%',

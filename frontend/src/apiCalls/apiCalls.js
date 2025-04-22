@@ -22,18 +22,19 @@ export const updateUserApi = (data) => {
 }
 
 // Funkcija za upload slika za bilbord
-export const uploadBilbordApi = (id, formData) => {
+export const uploadBilbordApi = (id, formData, onUploadProgress) => {
   return api
     .post(`/bilbord/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      onUploadProgress, // progress bar
     })
     .then((response) => response.data)
 }
 
 // Funkcija za upload videa za bilbord
-export const uploadBilbordVideoApi = async (id, formData) => {
+export const uploadBilbordVideoApi = async (id, formData, onUploadProgress) => {
   console.log('USER ID za create bilbord', id)
   console.log('formData create bilbord', formData)
   return api
@@ -41,6 +42,7 @@ export const uploadBilbordVideoApi = async (id, formData) => {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      onUploadProgress, // progress bar
     })
     .then((response) => response.data)
 }
