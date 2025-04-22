@@ -24,11 +24,11 @@ router.get('/:userId/:bilbordId', getBilbordByUserAndBilbordId)
 // Ruta za edit imena bilborda ( klijent )
 router.post('/clientUpdateBilbordName/:id', protect, clientUpdateBilbordName)
 
-// Ruta za upload slike za bilbord
-router.post('/:id', protect, upload.single('image'), uploadBilbordImage)
-
 // Nova ruta za upload videa
 router.post('/video/:id', protect, upload.single('video'), uploadBilbordVideo)
+
+// Ruta za upload slike za bilbord
+router.post('/:id', protect, upload.single('image'), uploadBilbordImage)
 
 // Ruta za admin-kreiranje novog bilborda za korisnika
 router.post('/adminAddBilbord/:userId', protect, createBilbordForUser)
